@@ -15,7 +15,7 @@ export function AgentsView() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-xl font-bold text-slate-800">Agent 中台网关</h2>
-            <p className="text-sm text-slate-500 mt-1">管理业务系统中已挂载的所有专门场景化 Agent 生态。</p>
+            <p className="text-sm text-slate-500 mt-1">以方太数据质检 Agent 为首个场景，复用统一模型、Skill、权限和审计基座。</p>
           </div>
           <button 
             onClick={() => setSelectedAgentId('new')}
@@ -39,9 +39,9 @@ export function AgentsView() {
                    <CheckCircle2 className="w-3 h-3"/> 已上架
                 </div>
               </div>
-              <h3 className="font-bold text-slate-800 mb-2 truncate">数据质检智能归因 Agent</h3>
+              <h3 className="font-bold text-slate-800 mb-2 truncate">方太数据质检智能归因 Agent</h3>
               <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4 flex-1">
-                负责多系统数据自动汇聚、异常特征提取以及质检校验比对的大型财务模型引擎。
+                聚焦收入模块差异归因，按业务 Skill 执行规则计算、证据链生成和人工复核闭环。
               </p>
               <div className="border-t border-slate-100 pt-4 mt-auto flex items-center justify-between mt-auto">
                  <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-slate-400">
@@ -63,7 +63,7 @@ export function AgentsView() {
               </div>
               <h3 className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors mb-1">新建 Agent</h3>
               <p className="text-xs text-slate-500 max-w-[200px]">
-                 创建一个全新的垂直领域 Agent 向导执行特定工作流。
+                 后续可扩展应收、合同资产、外库存等业财质检场景。
               </p>
            </div>
         </div>
@@ -403,7 +403,7 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                        <div className="border border-dashed border-slate-300 rounded-lg p-6 flex flex-col items-center justify-center text-center bg-slate-50/50">
                            <Wrench className="w-6 h-6 text-slate-300 mb-2" />
                            <p className="text-sm font-bold text-slate-600 mb-1">暂无装载物理工具</p>
-                           <p className="text-xs text-slate-500 mb-3">支持访问数据库、执行代码等操作</p>
+                           <p className="text-xs text-slate-500 mb-3">支持挂载只读证据源和确定性规则工具</p>
                            <button className="text-xs bg-white border border-slate-200 font-bold text-blue-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 shadow-sm">浏览工具市场</button>
                        </div>
                    ) : (
@@ -412,8 +412,8 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                                <div className="w-1 h-full bg-cyan-500 absolute left-0 top-0 hidden group-hover:block transition-all"></div>
                                <Server className="w-5 h-5 text-slate-400 mt-0.5" />
                                <div>
-                                   <div className="font-bold text-sm text-slate-700">SQL 只读沙箱执行器</div>
-                                   <div className="text-[10px] text-slate-500 mt-1">执行系统生成的 SELECT 并返回结构化结果</div>
+                                   <div className="font-bold text-sm text-slate-700">只读证据查询工具</div>
+                                   <div className="text-[10px] text-slate-500 mt-1">按预设字段映射获取结构化证据</div>
                                </div>
                            </div>
                            <div className="border border-slate-200 p-3 rounded-lg flex items-start gap-3 bg-slate-50 relative overflow-hidden group">
@@ -1050,8 +1050,8 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                              <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg bg-slate-50 cursor-pointer hover:border-slate-300">
                                <input type="checkbox" defaultChecked className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer" />
                                <div>
-                                 <div className="text-xs font-bold text-slate-700">SQL 只读沙箱执行器</div>
-                                 <div className="text-[10px] text-slate-500 mt-0.5 font-mono">system.sql.reader</div>
+                                 <div className="text-xs font-bold text-slate-700">只读证据查询工具</div>
+                                 <div className="text-[10px] text-slate-500 mt-0.5 font-mono">evidence.readonly.query</div>
                                </div>
                              </label>
                              <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg bg-slate-50 cursor-pointer hover:border-slate-300">

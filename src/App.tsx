@@ -80,6 +80,7 @@ import { DataView } from "./components/views/DataView";
 import { NotificationsView } from "./components/views/NotificationsView";
 import { RbacView } from "./components/views/RbacView";
 import { AgentsView } from "./components/views/AgentsView";
+import { TaskWorkbench } from "./components/views/TaskWorkbench";
 import { PlaceholderView } from "./components/ui/PlaceholderView";
 import { StatCard } from "./components/ui/StatCard";
 import { Step } from "./components/ui/Step";
@@ -91,7 +92,7 @@ import type { ReconciliationDifference, AnalysisResult } from "./types";
 type Tab = "dashboard" | "agents" | "models" | "skills" | "data" | "tasks" | "notifications" | "rbac";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>("agents");
+  const [activeTab, setActiveTab] = useState<Tab>("tasks");
   const [differences, setDifferences] = useState<ReconciliationDifference[]>([]);
   const [selectedDiff, setSelectedDiff] = useState<ReconciliationDifference | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -106,7 +107,7 @@ export default function App() {
   // Copilot State
   const [showCopilot, setShowCopilot] = useState(false);
   const [copilotMessages, setCopilotMessages] = useState<{role: 'user'|'ass', content: string}[]>([
-    { role: 'ass', content: '您好，我是 Agent 中台 Copilot。您可以让我帮您编写提示词、一句话生成/修改工作流，或者直接在沙盒中测试应用逻辑。' }
+    { role: 'ass', content: '您好，我是数据质检归因助手。我可以解释证据链、润色归因报告、提示缺失数据，但不会修改规则或执行数据修复。' }
   ]);
   const [copilotInput, setCopilotInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -126,7 +127,7 @@ export default function App() {
       setCopilotInput("");
       
       setTimeout(() => {
-          setCopilotMessages([...newMsgs, { role: 'ass', content: '好的，基于您的指令（一句话修改工作流），正在自动重新配置 Agent... 已将该分支节点的判断方式切换为 LLM 逻辑判断。视图已为您高亮对应节点。' }]);
+          setCopilotMessages([...newMsgs, { role: 'ass', content: '我会基于当前差异的脱敏证据链生成解释建议。规则计算和复核结论仍由平台工作流与人工确认完成，我不会直接修改业务规则或触发修复动作。' }]);
           // 发出自定义事件更新 AgentsView 的状态
           window.dispatchEvent(new CustomEvent('copilot-action', { detail: { action: 'switch-decision-llm' } }));
       }, 1000);
@@ -250,7 +251,7 @@ export default function App() {
         <nav className="flex-1 px-4 space-y-1">
           <div className="text-slate-500 text-[10px] uppercase font-bold tracking-widest px-3 mb-2 opacity-60">核心管控</div>
           {[
-            { id: "dashboard", icon: LayoutDashboard, label: "数字化大盘" },
+            { id: "dashboard", icon: LayoutDashboard, label: "运营大盘" },
             { id: "agents", icon: Bot, label: "Agent 配置" },
             { id: "models", icon: Cpu, label: "模型管理" },
             { id: "skills", icon: Brain, label: "技能管理" },
@@ -273,7 +274,7 @@ export default function App() {
 
           <div className="pt-6 text-slate-500 text-[10px] uppercase font-bold tracking-widest px-3 mb-2 opacity-60">业务支撑</div>
           {[
-            { id: "tasks", icon: ClipboardCheck, label: "数据质检智能归因 Agent" },
+            { id: "tasks", icon: ClipboardCheck, label: "方太数据质检 Agent" },
           ].map((item) => (
             <button
               key={item.id}
@@ -312,14 +313,14 @@ export default function App() {
             <span className="text-slate-400 text-sm">Agent 中台核心</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
             <span className="font-semibold text-slate-700">
-              {activeTab === "dashboard" && "数字化大盘"}
+              {activeTab === "dashboard" && "运营大盘"}
               {activeTab === "agents" && "Agent 编排与配置"}
               {activeTab === "models" && "模型配置与监控"}
               {activeTab === "skills" && "领域技能库管理"}
               {activeTab === "data" && "数据集成与分发"}
               {activeTab === "notifications" && "统一消息调度"}
               {activeTab === "rbac" && "系统权限与操作审计"}
-              {activeTab === "tasks" && "数据质检归因分析"}
+              {activeTab === "tasks" && "数据质检 Agent 工作台"}
             </span>
           </div>
         </header>
@@ -331,6 +332,9 @@ export default function App() {
               <AgentsView key="agents" />
             )}
             {activeTab === "tasks" && (
+              <TaskWorkbench key="tasks-workbench" />
+            )}
+            {false && activeTab === "tasks" && (
               <>
                 <motion.div
                   key="tasks"
@@ -355,7 +359,7 @@ export default function App() {
                       <div className="flex gap-3 items-center">
                         <div className="flex gap-2 text-[10px]">
                           <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-bold">批次 #10492</span>
-                          <span className="bg-emerald-100 px-2 py-0.5 rounded text-emerald-700 font-bold uppercase tracking-tighter">自动化修复: 开启</span>
+                          <span className="bg-emerald-100 px-2 py-0.5 rounded text-emerald-700 font-bold uppercase tracking-tighter">人工复核: 开启</span>
                         </div>
                         <button 
                           onClick={() => setShowUploadModal(true)}
@@ -536,7 +540,7 @@ export default function App() {
                                           }}
                                           className="px-5 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-blue-900/20 transition-transform hover:scale-105 active:scale-95"
                                         >
-                                          定案并推工单
+                                          确认并通知
                                         </button>
                                       </div>
                                     </div>
@@ -656,12 +660,12 @@ export default function App() {
                      <Sparkles className="w-4 h-4 text-blue-50" />
                   </div>
                   <div>
-                     <h3 className="text-white font-bold text-sm tracking-wide">Agent 中台 Copilot</h3>
-                     <p className="text-blue-200 text-[10px] tracking-wider font-bold">一句话生成/修改工作流</p>
+                     <h3 className="text-white font-bold text-sm tracking-wide">归因助手</h3>
+                     <p className="text-blue-200 text-[10px] tracking-wider font-bold">解释证据链 / 生成报告措辞</p>
                   </div>
                </div>
                <div className="flex gap-2">
-                 <button className="text-blue-200 hover:text-white p-1 transition-colors" title="清除发话" onClick={() => setCopilotMessages([{ role: 'ass', content: '您好，我是 Agent 中台 Copilot。您可以让我帮您编写提示词、一句话生成/修改工作流，或者直接在沙盒中测试业务逻辑。' }])}>
+                 <button className="text-blue-200 hover:text-white p-1 transition-colors" title="清除发话" onClick={() => setCopilotMessages([{ role: 'ass', content: '您好，我是数据质检归因助手。我可以解释证据链、润色归因报告、提示缺失数据，但不会修改规则或执行数据修复。' }])}>
                    <RefreshCcw className="w-4 h-4" />
                  </button>
                </div>
@@ -694,7 +698,7 @@ export default function App() {
                      type="text" 
                      value={copilotInput}
                      onChange={e => setCopilotInput(e.target.value)}
-                     placeholder="输入要求 (如: 将决策节点切换为LLM判断)..." 
+                     placeholder="输入要求 (如: 帮我解释这条证据链)..." 
                      className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:bg-white transition-colors"
                   />
                   <button 
@@ -706,7 +710,7 @@ export default function App() {
                   </button>
                </div>
                <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  {["将决策节点切换为LLM判断", "帮我写对账提示词", "一句话生成异常审批链"].map(tag => (
+                  {["解释当前证据链", "润色归因报告", "提示缺失数据"].map(tag => (
                      <button 
                         key={tag}
                         type="button"

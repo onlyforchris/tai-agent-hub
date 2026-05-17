@@ -15,7 +15,7 @@ export function NotificationsView() {
              <Bell className="w-4 h-4 text-blue-600" />
              消息订阅与多点推送
           </h3>
-          <p className="text-xs text-slate-500 mt-1">对排查出异常及修复推单进度，通过多种内网合作工具推达责任人。</p>
+          <p className="text-xs text-slate-500 mt-1">对归因完成、证据不足和人工复核状态，通过内网协作工具推达责任人。</p>
         </div>
       </div>
       <div className="flex-1 overflow-auto bg-slate-50/30 p-6">
@@ -44,7 +44,7 @@ export function NotificationsView() {
                     </div>
                     <div>
                       <h5 className="font-bold text-slate-700">钉钉工作通知对接</h5>
-                      <p className="text-xs text-slate-500 mt-0.5">每日/每周汇总自动跑通定案及成功推平的账目，并同步发送至业财融合项目组群聊。</p>
+                      <p className="text-xs text-slate-500 mt-0.5">每日/每周汇总已确认归因、需复核差异和责任系统分布，并同步发送至业财融合项目组群聊。</p>
                     </div>
                   </div>
                   <div className="w-10 h-5 bg-blue-600 rounded-full flex items-center p-1 cursor-pointer">
@@ -72,16 +72,16 @@ export function NotificationsView() {
          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl relative overflow-hidden max-w-3xl">
            <div className="relative z-10">
              <h4 className="font-bold text-white mb-2 flex items-center gap-2"><RefreshCcw className="w-4 h-4 text-emerald-400" /> 执行运作闭环</h4>
-             <p className="text-sm text-slate-400 leading-relaxed max-w-xl mb-6">我们倡导“自动感知 → AI 推理 → 人工复核干预 → 自动回填单据”的标准化管控模式，降低人工介入的时间成本。</p>
+             <p className="text-sm text-slate-400 leading-relaxed max-w-xl mb-6">平台采用“差异接入 → 规则归因 → 模型报告 → 人工复核 → 责任系统跟进”的闭环模式，保留人工确认和系统责任边界。</p>
              
              <div className="flex items-center gap-3">
-               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium">1. ETL 数据同步/人工导入</div>
+               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium">1. 帆软差异接入</div>
                <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
-               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium border border-blue-500/30 text-blue-300">2. Agent 自动核算归因</div>
+               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium border border-blue-500/30 text-blue-300">2. 规则计算与归因</div>
                <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
-               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium">3. 钉钉告警指派至人</div>
+               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium">3. 钉钉/邮件提醒</div>
                <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
-               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium border border-emerald-500/30 text-emerald-300">4. 业财主管核批复查修复推单</div>
+               <div className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded shadow-inner font-mono font-medium border border-emerald-500/30 text-emerald-300">4. 人工复核与案例沉淀</div>
              </div>
            </div>
          </div>
