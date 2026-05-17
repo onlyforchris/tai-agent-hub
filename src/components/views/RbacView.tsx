@@ -291,13 +291,13 @@ export function RbacView() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
       {/* Top Header */}
-      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+      <div className="px-6 py-4 border-b border-slate-100 bg-white shadow-[0_1px_2px_-1px_rgba(0,0,0,0.05)] z-10 relative">
         <div>
           <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-blue-600" />
-            统一身份与资产边界 (Unified RBAC & Sandbox)
+            <Shield className="w-5 h-5 text-blue-600" />
+            <span className="text-base tracking-tight">统一身份与资产边界 (Unified RBAC & Sandbox)</span>
           </h3>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1.5 ml-7">
             不再孤立管理。点击各类实体查看完整的数据链路与智能体访问控制安全水位。
           </p>
         </div>
@@ -306,59 +306,59 @@ export function RbacView() {
       {/* Main Content Area - Split View */}
       <div className="flex-1 flex overflow-hidden">
          {/* Left Panel: Entity Tables */}
-         <div className="w-3/5 border-r border-slate-200 flex flex-col bg-slate-50/50">
+         <div className="w-full flex flex-col bg-slate-50/50">
             {/* Entity Selectors */}
-            <div className="flex border-b border-slate-200 p-3 gap-3 bg-white">
+            <div className="flex border-b border-slate-100 p-6 gap-4 bg-slate-50/50">
                <button 
                   onClick={() => {setActiveEntity('users'); setSelectedId(null)}}
-                  className={cn("flex-1 p-3 rounded-xl border flex flex-col items-start gap-1 transition-all text-left group", 
-                     activeEntity === 'users' ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/20" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  className={cn("flex-1 p-4 rounded-xl border flex flex-col items-start gap-2 transition-all text-left shadow-sm group", 
+                     activeEntity === 'users' ? "border-blue-300 bg-white shadow-blue-100/50 ring-2 ring-blue-500/10" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   )}
                >
-                  <div className="flex items-center justify-between w-full">
-                     <Users className={cn("w-4 h-4", activeEntity === 'users' ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")} />
-                     <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", activeEntity === 'users' ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500")}>4 账户</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                     <Users className={cn("w-5 h-5", activeEntity === 'users' ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")} />
+                     <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full", activeEntity === 'users' ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500")}>4 账户</span>
                   </div>
-                  <span className={cn("font-bold text-sm mt-1", activeEntity === 'users' ? "text-blue-900" : "text-slate-700")}>人与组织配置</span>
+                  <span className={cn("font-bold text-sm tracking-tight", activeEntity === 'users' ? "text-slate-900" : "text-slate-700")}>人与组织配置</span>
                </button>
                
                <button 
                   onClick={() => {setActiveEntity('roles'); setSelectedId(null)}}
-                  className={cn("flex-1 p-3 rounded-xl border flex flex-col items-start gap-1 transition-all text-left group", 
-                     activeEntity === 'roles' ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  className={cn("flex-1 p-4 rounded-xl border flex flex-col items-start gap-2 transition-all text-left shadow-sm group", 
+                     activeEntity === 'roles' ? "border-emerald-300 bg-white shadow-emerald-100/50 ring-2 ring-emerald-500/10" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   )}
                >
-                  <div className="flex items-center justify-between w-full">
-                     <ShieldCheck className={cn("w-4 h-4", activeEntity === 'roles' ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600")} />
-                     <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", activeEntity === 'roles' ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>4 策略</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                     <ShieldCheck className={cn("w-5 h-5", activeEntity === 'roles' ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600")} />
+                     <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full", activeEntity === 'roles' ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>4 策略</span>
                   </div>
-                  <span className={cn("font-bold text-sm mt-1", activeEntity === 'roles' ? "text-emerald-900" : "text-slate-700")}>角色与网关网格</span>
+                  <span className={cn("font-bold text-sm tracking-tight", activeEntity === 'roles' ? "text-slate-900" : "text-slate-700")}>角色与网关网格</span>
                </button>
 
                <button 
                   onClick={() => {setActiveEntity('agents'); setSelectedId(null)}}
-                  className={cn("flex-1 p-3 rounded-xl border flex flex-col items-start gap-1 transition-all text-left group", 
-                     activeEntity === 'agents' ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  className={cn("flex-1 p-4 rounded-xl border flex flex-col items-start gap-2 transition-all text-left shadow-sm group", 
+                     activeEntity === 'agents' ? "border-indigo-300 bg-white shadow-indigo-100/50 ring-2 ring-indigo-500/10" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   )}
                >
-                  <div className="flex items-center justify-between w-full">
-                     <Bot className={cn("w-4 h-4", activeEntity === 'agents' ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600")} />
-                     <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", activeEntity === 'agents' ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500")}>2 引擎</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                     <Bot className={cn("w-5 h-5", activeEntity === 'agents' ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600")} />
+                     <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full", activeEntity === 'agents' ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500")}>2 引擎</span>
                   </div>
-                  <span className={cn("font-bold text-sm mt-1", activeEntity === 'agents' ? "text-indigo-900" : "text-slate-700")}>智能体控制面</span>
+                  <span className={cn("font-bold text-sm tracking-tight", activeEntity === 'agents' ? "text-slate-900" : "text-slate-700")}>智能体控制面</span>
                </button>
             </div>
 
             {/* List View */}
-            <div className="flex-1 overflow-auto p-4">
+            <div className="flex-1 overflow-auto p-6 w-full max-w-7xl mx-auto">
                {/* Search Bar */}
-               <div className="relative mb-4">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input type="text" placeholder={`搜索相关的${activeEntity === 'users' ? '用户' : activeEntity === 'roles' ? '角色设定' : 'Agent 名称'}...`} className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 shadow-sm" />
+               <div className="relative mb-8 max-w-2xl mx-auto">
+                  <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input type="text" placeholder={`搜索相关的${activeEntity === 'users' ? '用户' : activeEntity === 'roles' ? '策略' : 'Agent 名称'}...`} className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-sm transition-all" />
                </div>
 
                {activeEntity === 'users' && (
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-4">
                      {DB.users.map(u => (
                         <div 
                            key={u.id} 
@@ -378,7 +378,6 @@ export function RbacView() {
                            </div>
                            <div className="flex items-center gap-4">
                               <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold", u.status === '活跃' ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400")}>{u.status}</span>
-                              <ChevronRight className={cn("w-4 h-4", selectedId === u.id ? "text-blue-500" : "text-slate-300")} />
                            </div>
                         </div>
                      ))}
@@ -386,7 +385,7 @@ export function RbacView() {
                )}
 
                {activeEntity === 'agents' && (
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-4">
                      {DB.agents.map(a => (
                         <div 
                            key={a.id} 
@@ -408,7 +407,6 @@ export function RbacView() {
                               </div>
                            </div>
                            <div className="flex items-center gap-4">
-                              <ChevronRight className={cn("w-4 h-4", selectedId === a.id ? "text-indigo-500" : "text-slate-300")} />
                            </div>
                         </div>
                      ))}
@@ -416,7 +414,7 @@ export function RbacView() {
                )}
                
                {activeEntity === 'roles' && (
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-4">
                      {DB.roles.map(r => (
                         <div 
                            key={r.id} 
@@ -435,7 +433,6 @@ export function RbacView() {
                               </div>
                            </div>
                            <div className="flex items-center gap-4">
-                              <ChevronRight className={cn("w-4 h-4", selectedId === r.id ? "text-emerald-500" : "text-slate-300")} />
                            </div>
                         </div>
                      ))}
@@ -445,24 +442,37 @@ export function RbacView() {
             
             {/* Context Actions */}
             <div className="p-4 border-t border-slate-200 bg-white flex justify-between items-center text-xs">
-                <span className="text-slate-500">对左侧列表中选中的实体进行修改</span>
+                <span className="text-slate-500">点击列表中的实体以查看详细配置与拓扑</span>
                 <button className="flex items-center gap-1.5 text-blue-600 font-bold hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
                   <UserPlus className="w-3.5 h-3.5" /> 
                   新增{activeEntity === 'users' ? '人员' : activeEntity === 'roles' ? '策略' : '沙箱配置'}
                 </button>
             </div>
          </div>
-
-         {/* Right Panel: Topology & Tracing */}
-         <div className="w-2/5 min-w-[400px] bg-slate-50/20 overflow-y-auto relative p-6">
-             <div className="absolute top-4 right-4 text-[10px] text-slate-400 font-mono tracking-widest uppercase flex items-center gap-1">
-                <Activity className="w-3 h-3" /> Topology Trace
-             </div>
-             
-             <div className="mt-4">
-                {renderTopology()}
-             </div>
-         </div>
+         
+         {/* Details Modal overlay */}
+         <AnimatePresence>
+            {selectedId && (
+               <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center p-6">
+                  <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative">
+                     {/* Modal Header */}
+                     <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                           <Activity className="w-4 h-4 text-blue-500" />
+                           <h3 className="font-bold text-slate-800 text-lg">Topology Trace</h3>
+                        </div>
+                        <button onClick={() => setSelectedId(null)} className="text-slate-400 hover:text-slate-600 focus:outline-none bg-white border border-slate-200 p-1 rounded hover:bg-slate-50 transition-colors">
+                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                     </div>
+                     {/* Modal Body */}
+                     <div className="flex-1 overflow-y-auto p-8 relative">
+                         {renderTopology()}
+                     </div>
+                  </motion.div>
+               </div>
+            )}
+         </AnimatePresence>
       </div>
     </motion.div>
   );

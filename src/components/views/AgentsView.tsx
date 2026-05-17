@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { 
-  BarChart3, Brain, ChevronRight, ClipboardCheck, Database, FileText, Home, LayoutDashboard, Lock, MessageSquare, RefreshCcw, Search, Settings, ShieldCheck, Zap, Cpu, Bell, HardDrive, Users, Key, Shield, Plus, Check, Activity, ShieldAlert, Box, TerminalSquare, Waypoints, FileUp, Workflow, Webhook, FileSpreadsheet, Download, MessageSquareDot, Smartphone, Mail, Bot, Network, Braces, SlidersHorizontal, ToggleLeft, KeyRound, UsersRound, Wrench, AlignLeft, FolderLock, ToggleRight, Lightbulb, Palette, Settings2, ArrowRight, Server, Layers, Blocks, ArrowDown, PlayCircle, GitBranch, BrainCircuit, SearchCode, CheckCircle2, FileOutput, Info, AlertTriangle, UploadCloud, X, Eye, Pencil, ShieldBan, MousePointerClick, Code
+  BarChart3, Brain, ChevronRight, ClipboardCheck, Database, FileText, Home, LayoutDashboard, Lock, MessageSquare, RefreshCcw, Search, Settings, ShieldCheck, Zap, Cpu, Bell, HardDrive, Users, Key, Shield, Plus, Check, Activity, ShieldAlert, Box, TerminalSquare, Waypoints, FileUp, Workflow, Webhook, FileSpreadsheet, Download, MessageSquareDot, Smartphone, Mail, Bot, Network, Braces, SlidersHorizontal, ToggleLeft, KeyRound, UsersRound, Wrench, AlignLeft, FolderLock, ToggleRight, Lightbulb, Palette, Settings2, ArrowRight, Server, Layers, Blocks, ArrowDown, PlayCircle, GitBranch, BrainCircuit, SearchCode, CheckCircle2, FileOutput, Info, AlertTriangle, UploadCloud, X, Eye, Pencil, ShieldBan, MousePointerClick, Code, ZoomIn, ZoomOut, Maximize
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from "recharts";
@@ -85,6 +85,26 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
   const [decisionLogic, setDecisionLogic] = useState("code");
   const [sandboxPhase, setSandboxPhase] = useState<'upload' | 'running' | 'result'>('upload');
   const [uploadedFiles, setUploadedFiles] = useState<{name: string, size: string, type: 'data'|'log'}[]>([]);
+  const [zoomLevel, setZoomLevel] = useState(0.85);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isCanvasDragging, setIsCanvasDragging] = useState(false);
+  const [canvasDragStart, setCanvasDragStart] = useState({ x: 0, y: 0 });
+
+  // Handle zooming using keyboard shortcuts
+  useEffect(() => {
+    if (currentStep !== 6) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === '=' || e.key === '+') {
+        setZoomLevel((z) => Math.min(2, z + 0.1));
+      } else if (e.key === '-') {
+        setZoomLevel((z) => Math.max(0.2, z - 0.1));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentStep]);
 
   // State for Context list
   const [runtimeContexts, setRuntimeContexts] = useState<any[]>([
@@ -219,7 +239,7 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
         {/* Right Content */}
         <div className="flex-1 flex flex-col bg-slate-50/30">
           <div className="flex-1 overflow-y-auto w-full relative">
-          <fieldset disabled={!isEditing} className={cn("min-h-full", !isEditing && "pointer-events-none select-none opacity-90 [&_.group-hover\\:opacity-100]:!opacity-0 [&_input]:!text-slate-500 [&_textarea]:!text-slate-500 [&_select]:!text-slate-500")}>
+          <fieldset disabled={!isEditing} className={cn("h-full w-full flex flex-col border-none p-0 m-0", !isEditing && "opacity-90 [&_.group-hover\\:opacity-100]:!opacity-0 [&_input]:!text-slate-500 [&_textarea]:!text-slate-500 [&_select]:!text-slate-500")}>
           {currentStep === 1 && (
              <div className="w-full max-w-2xl mx-auto py-10 px-6 animate-in slide-in-from-bottom-4 duration-500">
                 <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
@@ -667,7 +687,7 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                                  <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                                     <span className="text-xs font-bold text-slate-700">节点库 (Nodes)</span>
                                     <div className="flex gap-1">
-                                       <button className="p-1 hover:bg-slate-200 rounded"><Search className="w-3 h-3 text-slate-500" /></button>
+                                       <div role="button" className="p-1 hover:bg-slate-200 rounded cursor-pointer"><Search className="w-3 h-3 text-slate-500" /></div>
                                     </div>
                                  </div>
                                  <div className="p-2 flex flex-col gap-1 max-h-[400px] overflow-auto">
@@ -687,24 +707,90 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                               </div>
 
                               <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-lg p-2 shadow-sm flex items-center justify-between">
-                                 <button className="p-2 rounded hover:bg-slate-100 text-slate-600 transition-colors tooltip" title="Undo"><RefreshCcw className="w-4 h-4 -scale-x-100" /></button>
-                                 <button className="p-2 rounded hover:bg-slate-100 text-slate-600 transition-colors tooltip" title="Redo"><RefreshCcw className="w-4 h-4" /></button>
+                                 <div role="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setZoomLevel(z => Math.max(0.2, z - 0.1)); }} className="p-2 rounded hover:bg-slate-100 text-slate-600 transition-colors tooltip cursor-pointer" title="缩小 (Zoom Out)"><ZoomOut className="w-4 h-4" /></div>
+                                 <span className="text-[10px] font-mono text-slate-500 w-10 text-center">{Math.round(zoomLevel * 100)}%</span>
+                                 <div role="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setZoomLevel(z => Math.min(2, z + 0.1)); }} className="p-2 rounded hover:bg-slate-100 text-slate-600 transition-colors tooltip cursor-pointer" title="放大 (Zoom In)"><ZoomIn className="w-4 h-4" /></div>
                                  <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                                 <button className="p-2 rounded hover:bg-slate-100 text-slate-600 transition-colors"><Info className="w-4 h-4" /></button>
+                                 <div role="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setZoomLevel(0.85); setPan({ x: 0, y: 0 }); }} className="p-2 rounded hover:bg-slate-100 text-slate-600 transition-colors tooltip cursor-pointer" title="适应窗口 (Fit View)"><Maximize className="w-4 h-4" /></div>
                               </div>
                            </div>
 
-                           {/* Canvas Area wrapper (simulated infinite pan) */}
-                           <div className="absolute inset-0 overflow-auto hide-scrollbar cursor-grab active:cursor-grabbing origin-top-left" style={{ transform: 'scale(0.85) translate(10%, 10%)' }}>
+                           <div className="absolute bottom-10 left-6 w-60 flex flex-col gap-3 z-30">
+                              <div className="bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] p-4">
+                                  <div className="flex items-center gap-2 mb-2">
+                                      <TerminalSquare className="w-4 h-4 text-indigo-600" />
+                                      <h3 className="font-bold text-[13px] text-slate-800 tracking-tight">执行上下文诊断日志</h3>
+                                  </div>
+                                  <p className="text-[10px] text-slate-500 mb-4 leading-relaxed">提供额外的执行链路所需环境日志或参考标准，用于归因节点决策支撑。</p>
+                                  <div 
+                                     onClick={(e) => { e.stopPropagation(); setUploadedFiles(prev => [...prev, {name: 'custom_context_v2.log', size: '200KB', type: 'log'}])}}
+                                     className="border-2 border-dashed border-slate-200 bg-slate-50/50 rounded-xl p-4 text-center cursor-pointer hover:bg-indigo-50/50 hover:border-indigo-300 transition-all group"
+                                  >
+                                      <UploadCloud className="w-5 h-5 text-indigo-300 mx-auto mb-1.5 group-hover:text-indigo-500 transition-colors" />
+                                      <span className="text-[11px] font-bold text-indigo-600">点击上传日志 .log/.json</span>
+                                  </div>
+                                  
+                                   {uploadedFiles.filter(f => f.type === 'log').length > 0 && (
+                                        <div className="mt-3 space-y-2 max-h-32 overflow-y-auto pr-1 hide-scrollbar">
+                                            {uploadedFiles.filter(f => f.type === 'log').map((file, i) => (
+                                               <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg px-2.5 py-2 text-[10px]">
+                                                   <div className="flex items-center gap-2 overflow-hidden">
+                                                       <TerminalSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                       <span className="font-medium text-slate-700 truncate max-w-[120px]" title={file.name}>{file.name}</span>
+                                                   </div>
+                                                   <span className="text-slate-400 font-mono scale-90">{file.size}</span>
+                                               </div>
+                                            ))}
+                                        </div>
+                                    )}
+                              </div>
+                           </div>
+
+                           {/* Canvas Area wrapper */}
+                           <div 
+                              className={cn("absolute inset-0 overflow-hidden w-full h-full flex items-center justify-center outline-none", isCanvasDragging ? "cursor-grabbing" : "cursor-grab")}
+                              style={{
+                                  backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)',
+                                  backgroundSize: `${16 * zoomLevel}px ${16 * zoomLevel}px`,
+                                  backgroundPosition: `${pan.x}px ${pan.y}px`
+                              }}
+                              onPointerDown={(e) => {
+                                  if (e.target instanceof Element && e.target.closest('[role="button"], button, .cursor-pointer')) return;
+                                  setIsCanvasDragging(true);
+                                  setCanvasDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+                                  (e.target as Element).setPointerCapture(e.pointerId);
+                              }}
+                              onPointerMove={(e) => {
+                                  if (!isCanvasDragging) return;
+                                  setPan({ x: e.clientX - canvasDragStart.x, y: e.clientY - canvasDragStart.y });
+                              }}
+                              onPointerUp={(e) => {
+                                  setIsCanvasDragging(false);
+                                  if (e.target instanceof Element && e.target.hasPointerCapture(e.pointerId)) {
+                                      e.target.releasePointerCapture(e.pointerId);
+                                  }
+                              }}
+                              onPointerCancel={(e) => {
+                                  setIsCanvasDragging(false);
+                              }}
+                              onWheel={(e) => {
+                                  if (e.ctrlKey || e.metaKey) {
+                                      setZoomLevel(z => Math.max(0.2, Math.min(2, z - e.deltaY * 0.005)));
+                                  } else {
+                                      setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+                                  }
+                              }}
+                           >
                                {isNew ? (
-                                   <div className="flex flex-col items-center justify-center w-full h-[800px] text-center">
+                                   <div className="flex flex-col items-center justify-center w-full h-[800px] text-center" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomLevel})` }}>
                                         <Bot className="w-16 h-16 text-slate-300 mb-4" />
                                         <h3 className="font-bold text-slate-500 text-lg">工作流画布为空</h3>
                                         <p className="text-sm text-slate-400 mt-2 max-w-sm">从左侧节点库拖拽触发器、判断逻辑和工具节点，构建符合您的垂直场景智能体执行链路。</p>
                                    </div>
                                ) : (<>
-{/* SVG Edge Connections */}
-                               <svg className="absolute w-[1800px] h-[1600px] pointer-events-none z-0">
+                               <div className="relative w-[1200px] h-[1300px] shrink-0 z-10 mx-auto" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomLevel})`, transformOrigin: 'center' }}>
+                               {/* SVG Edge Connections */}
+                               <svg className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
                                    <defs>
                                       <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                                         <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
@@ -741,7 +827,6 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                                    <path d="M 900 1100 C 900 1140, 900 1140, 900 1180" stroke={activeWorkflowNode === 'errorHandling' || activeWorkflowNode === 'notification' ? '#818cf8' : '#cbd5e1'} strokeWidth="2" fill="none" markerEnd={activeWorkflowNode === 'errorHandling' || activeWorkflowNode === 'notification' ? "url(#arrowhead-active)" : "url(#arrowhead)"} />
                                </svg>
 
-                               <div className="relative w-[1800px] h-[1600px] mx-auto z-10 flex">
                                   {/* Nodes wrapper absolute positioned */}
                                   
                                   {/* Trigger */}
@@ -880,28 +965,31 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                     </div>
 
                {/* Right Configuration Panel */}
-               <div className="w-96 bg-white border-l border-slate-200 shadow-xl flex flex-col z-20 shrink-0">
-                  <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-3">
-                     <h3 className="font-bold text-sm text-slate-800 flex items-center justify-between">
-                       <div className="flex items-center gap-2">
-                          {viewMode === 'build' ? <Settings className="w-4 h-4 text-slate-500" /> : <TerminalSquare className="w-4 h-4 text-indigo-500" />}
-                          {viewMode === 'build' ? "Node Configuration" : "Diagnostics & State"}
+               <AnimatePresence>
+                 {activeWorkflowNode && (
+                   <motion.div 
+                     initial={{ width: 0, opacity: 0 }} 
+                     animate={{ width: 384, opacity: 1 }} 
+                     exit={{ width: 0, opacity: 0 }} 
+                     transition={{ duration: 0.2, ease: "easeInOut" }}
+                     className="bg-white border-l border-slate-200 shadow-xl flex flex-col z-20 shrink-0 overflow-hidden"
+                   >
+                     <div className="w-96 flex flex-col h-full bg-white relative">
+                       <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-3">
+                          <h3 className="font-bold text-sm text-slate-800 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                               {viewMode === 'build' ? <Settings className="w-4 h-4 text-slate-500" /> : <TerminalSquare className="w-4 h-4 text-indigo-500" />}
+                               {viewMode === 'build' ? "Node Configuration" : "Diagnostics & State"}
+                            </div>
+                            <div role="button" onClick={() => setActiveWorkflowNode(null)} className="text-slate-400 hover:text-slate-600 focus:outline-none bg-slate-200/50 hover:bg-slate-200 p-1 rounded transition-colors cursor-pointer"><X className="w-3.5 h-3.5" /></div>
+                          </h3>
+                          <span className="text-[10px] font-mono text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded w-max">{activeWorkflowNode ? activeWorkflowNode.toUpperCase() : 'NONE'}</span>
                        </div>
-                       <span className="text-[10px] font-mono text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">{activeWorkflowNode ? activeWorkflowNode.toUpperCase() : 'NONE'}</span>
-                     </h3>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-5">
-                    <AnimatePresence mode="wait">
-                      {viewMode === 'build' ? (
-                        <>
-                          {!activeWorkflowNode && (
-                              <div className="flex flex-col items-center justify-center text-center py-10 opacity-60">
-                                   <Info className="w-10 h-10 text-slate-400 mb-4" />
-                                   <p className="text-sm font-bold text-slate-600 mb-1">未选中节点</p>
-                                   <p className="text-xs text-slate-500 max-w-[200px]">在左侧工作流画布点击节点查看或编辑配置。</p>
-                              </div>
-                          )}
-                          {activeWorkflowNode === 'trigger' && (
+                       <div className="flex-1 overflow-y-auto p-5">
+                         <AnimatePresence mode="wait">
+                           {viewMode === 'build' ? (
+                             <>
+                               {activeWorkflowNode === 'trigger' && (
                             <motion.div key="build-trigger" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
                           <div>
                             <label className="text-xs font-bold text-slate-700 mb-2 block">触发器类型 (Trigger)</label>
@@ -1178,7 +1266,10 @@ function AgentConfig({ onBack, isNew }: { onBack: () => void, isNew?: boolean })
                     )}
                     </AnimatePresence>
                   </div>
-               </div>
+                 </div>
+               </motion.div>
+             )}
+           </AnimatePresence>
             </div>
           )}
 

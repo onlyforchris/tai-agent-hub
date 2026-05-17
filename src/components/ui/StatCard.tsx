@@ -8,17 +8,17 @@ import { cn } from "@/src/lib/utils";
 
 export function StatCard({ label, value, color }: { label: string; value: string | number; color: "blue" | "green" | "purple" }) {
   const colors = {
-    blue: "bg-blue-50 text-blue-700 border-blue-100",
-    green: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    purple: "bg-purple-50 text-purple-700 border-purple-100",
+    blue: "bg-blue-50/50 text-blue-600 border-blue-200",
+    green: "bg-emerald-50/50 text-emerald-600 border-emerald-200",
+    purple: "bg-purple-50/50 text-purple-600 border-purple-200",
   };
   return (
-    <div className={cn("p-4 rounded-2xl border bg-white shadow-sm transition-transform hover:scale-[1.02]", colors[color])}>
-      <div className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-1.5">
-        <div className={cn("w-1.5 h-1.5 rounded-full", color === 'blue' ? 'bg-blue-500' : color === 'green' ? 'bg-emerald-500' : 'bg-purple-500')} />
+    <div className={cn("p-6 rounded-xl border shadow-sm transition-transform hover:scale-[1.02]", colors[color])}>
+      <div className="text-xs font-bold flex items-center gap-2">
+        <div className={cn("w-2 h-2 rounded-full", color === 'blue' ? 'bg-blue-500' : color === 'green' ? 'bg-emerald-500' : 'bg-purple-500')} />
         {label}
       </div>
-      <p className="text-2xl font-bold mt-2 font-mono tracking-tight">{value}</p>
+      <p className="text-4xl font-bold mt-4 font-mono tracking-tight">{value}</p>
     </div>
   );
 }

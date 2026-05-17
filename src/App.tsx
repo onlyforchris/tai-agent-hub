@@ -322,16 +322,6 @@ export default function App() {
               {activeTab === "tasks" && "数据质检归因分析"}
             </span>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 pr-6 border-r border-slate-100">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">系统已就绪</span>
-            </div>
-            <button className="bg-slate-900 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all flex items-center gap-2">
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              新建分析任务
-            </button>
-          </div>
         </header>
 
         {/* Content View */}
@@ -347,7 +337,7 @@ export default function App() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="w-full max-w-6xl mx-auto flex flex-col gap-6 h-full pb-6"
+                className="w-full max-w-[1700px] mx-auto flex flex-col gap-6 h-full pb-6 px-4"
               >
                 {/* Full Width: Difference List */}
                 <div className="w-full flex flex-col gap-6 h-full">
@@ -628,28 +618,6 @@ export default function App() {
               <RbacView />
             )}
           </AnimatePresence>
-        </div>
-
-        {/* Statistics Bottom Bar - Inspired by theme */}
-        <div className="mt-auto border-t border-slate-200 bg-white grid grid-cols-4 divide-x divide-slate-100">
-          <div className="p-4 text-center">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">运行中 Agent</p>
-            <p className="text-2xl font-bold text-slate-800">12</p>
-          </div>
-          <div className="p-4 text-center">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">已分析核对单据</p>
-            <p className="text-2xl font-bold text-slate-800">1.2k</p>
-          </div>
-          <div className="p-4 text-center">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">过检数据量</p>
-            <p className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-1 group cursor-default">
-              4.8 <span className="text-xs text-slate-300 group-hover:text-blue-500 transition-colors uppercase">TB</span>
-            </p>
-          </div>
-          <div className="p-4 text-center bg-slate-50/50">
-            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">AI 推理拦截率</p>
-            <p className="text-2xl font-bold text-blue-600">99.1%</p>
-          </div>
         </div>
       </main>
 
