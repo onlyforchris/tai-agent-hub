@@ -8,7 +8,10 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT || 3000);
+  const isProduction =
+    process.env.NODE_ENV === "production" ||
+    path.basename(process.argv[1] || "") === "server.cjs";
 
   app.use(express.json());
 
@@ -50,12 +53,46 @@ async function startServer() {
   ];
 
   // API Routes
+  app.get("/api/healthz", (req, res) => {
+    res.json({
+      ok: true,
+      mode: isProduction ? "production" : "development",
+      llmConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
+    });
+  });
+
+  app.get("/api/poc-readiness", (req, res) => {
+    res.json({
+      stage: "poc",
+      dataMode: "mock-ledger",
+      integratedSystems: ["SAP", "DMS", "Finereport"],
+      realIntegrationsRequiredForPilot: [
+        "SSO/RBAC identity source",
+        "SAP/DMS read-only data connector",
+        "model gateway with audit logging",
+        "ticket or notification system connector",
+      ],
+      reviewNotes: [
+        "This demo isolates the user-facing workflow from production data.",
+        "Model prompts and evidence are generated server-side; API keys are not exposed to the browser bundle.",
+        "The current fallback report is deterministic when no GEMINI_API_KEY is configured.",
+      ],
+    });
+  });
+
   app.get("/api/differences", (req, res) => {
     res.json(mockDifferences);
   });
 
   app.post("/api/analyze", async (req, res) => {
     const { diffId, billNo, type } = req.body;
+
+    if (!diffId || !billNo || !type) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: diffId, billNo, type",
+      });
+    }
 
     // Simulate Agent Skill Steps logic
     // In a real app, this would query databases. Here we return structured evidence.
@@ -77,7 +114,7 @@ async function startServer() {
       }
       const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const result = await genAI.models.generateContent({
-        model: "gemini-1.5-pro",
+        model: process.env.GEMINI_MODEL || "gemini-1.5-pro",
         contents: `你是一个财务AI质检专家。请根据以下差异信息和排查证据，生成一份专业的归因分析报告。
       差异编号: ${diffId}
       单据号: ${billNo}
@@ -123,7 +160,7 @@ async function startServer() {
   });
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

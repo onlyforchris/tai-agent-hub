@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { 
   Database, HardDrive, Waypoints, FileUp, Workflow, Webhook, FileSpreadsheet, Download, 
-  TerminalSquare, UploadCloud, PlayCircle, CheckCircle2, FileText, Code, CheckCircle, Smartphone, Box, ShieldAlert, Cpu, Server, Table
+  TerminalSquare, UploadCloud, PlayCircle, CheckCircle2, FileText, Code, CheckCircle, Smartphone, Box, ShieldAlert, Cpu, Server, Table, X, Brain
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/src/lib/utils";
