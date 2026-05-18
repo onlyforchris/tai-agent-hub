@@ -142,7 +142,7 @@ export function TaskWorkbench() {
         )}
       </AnimatePresence>
 
-      <div className="mx-auto flex max-w-[1500px] flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -310,6 +310,13 @@ export function TaskWorkbench() {
                         </div>
                         <div className="text-lg font-bold text-slate-900">{analysisResult.skillName}</div>
                         <div className="mt-2 text-sm leading-6 text-slate-600">{analysisResult.rootCause}</div>
+                        {analysisResult.runId && (
+                          <div className="mt-3 inline-flex items-center gap-2 rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
+                            Run ID：<code className="font-mono">{analysisResult.runId}</code>
+                            <span className="text-slate-400">·</span>
+                            <span className="text-slate-500">前往侧边栏「Agent 执行追踪」查看完整 Trace</span>
+                          </div>
+                        )}
                       </div>
                       <div className="rounded-lg border border-slate-200 p-4">
                         <div className="text-xs font-bold text-slate-500">置信度</div>

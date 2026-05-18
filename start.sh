@@ -140,15 +140,17 @@ if [ ! -f ".env" ]; then
   else
     log_warn ".env 文件不存在，创建空配置"
     cat > .env <<'ENVEOF'
-GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+DEEPSEEK_API_KEY="YOUR_DEEPSEEK_API_KEY"
+QWEN_API_KEY="YOUR_QWEN_API_KEY"
+MODEL_PROVIDER="auto"
 APP_URL="http://localhost:PORT_PLACEHOLDER"
 ENVEOF
     sed -i "s/PORT_PLACEHOLDER/$PORT/g" .env
   fi
 fi
 
-if grep -q "YOUR_GEMINI_API_KEY" .env 2>/dev/null; then
-  log_warn "GEMINI_API_KEY 尚未配置，AI 归因功能将使用确定性模板兜底"
+if grep -q "YOUR_DEEPSEEK_API_KEY" .env 2>/dev/null && grep -q "YOUR_QWEN_API_KEY" .env 2>/dev/null; then
+  log_warn "DEEPSEEK_API_KEY / QWEN_API_KEY 尚未配置，AI 归因功能将使用确定性模板兜底"
 fi
 
 # 将端口写入 .env（覆盖已有的 PORT 配置）

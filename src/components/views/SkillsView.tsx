@@ -232,9 +232,6 @@ export function SkillsView() {
             <Brain className="h-5 w-5 text-blue-600" />
             技能管理
           </h3>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            管理业务归因 Skill 与通用解析 Skill，支持新增、编辑、删除、启用和禁用。
-          </p>
         </div>
         <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
           <Plus className="h-4 w-4" />
