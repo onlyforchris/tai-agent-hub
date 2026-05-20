@@ -1,15 +1,30 @@
 import React from "react";
 import {
-  AlertTriangle,
+  Check,
   Database,
-  Eye,
-  FolderLock,
-  ShieldBan,
-  ShieldCheck,
+  FileStack,
+  KeyRound,
+  Plug,
+  RadioTower,
   ShieldAlert,
+  ToggleLeft,
+  ToggleRight,
+  UserRoundCheck,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import type { ToolApi, WizardFormState } from "@/src/components/views/agents/types";
+import type {
+  AgentOperableResource,
+  AgentReadableResource,
+  ConfirmationReviewer,
+  ManualConfirmationResource,
+  ModelAccessPrincipal,
+  OperationPolicy,
+  PrincipalAccessLevel,
+  ReadableAccessLevel,
+  ToolApi,
+  WizardFormState,
+} from "@/src/components/views/agents/types";
 
 interface Props {
   form: WizardFormState;
@@ -18,272 +33,498 @@ interface Props {
   tools: ToolApi[];
 }
 
+const PRINCIPALS: Array<{ key: ModelAccessPrincipal; name: string; type: string; scope: string }> = [
+  { key: "finance_org", name: "财务数据治理组", type: "组织", scope: "处理收入回款差异" },
+  { key: "data_team", name: "数据治理 / IT", type: "组织", scope: "查看 Trace 与接口状态" },
+  { key: "admin_role", name: "平台管理员", type: "角色", scope: "维护配置与发布状态" },
+];
+
+const READABLE_RESOURCES: Array<{
+  key: AgentReadableResource;
+  name: string;
+  source: "API" | "ETL" | "系统库";
+  permission: string;
+  desc: string;
+  icon: React.ElementType;
+}> = [
+  {
+    key: "api_diff_list",
+    name: "帆软差异清单接口",
+    source: "API",
+    permission: "接口调用",
+    desc: "拉取待归因差异",
+    icon: Plug,
+  },
+  {
+    key: "etl_finance_table",
+    name: "财务宽表 / 对账明细",
+    source: "ETL",
+    permission: "表查询",
+    desc: "作为规则计算输入",
+    icon: FileStack,
+  },
+  {
+    key: "db_trace_case",
+    name: "Trace / 案例库",
+    source: "系统库",
+    permission: "库查询",
+    desc: "读取执行过程与历史案例",
+    icon: Database,
+  },
+];
+
+const OPERABLE_RESOURCES: Array<{
+  key: AgentOperableResource;
+  name: string;
+  operation: string;
+  desc: string;
+}> = [
+  { key: "rule_engine", name: "规则引擎", operation: "执行规则", desc: "金额、状态、重复结算等规则" },
+  { key: "report_template", name: "报告模板", operation: "渲染报告", desc: "生成归因报告，不写外部系统" },
+  { key: "notify_service", name: "通知服务", operation: "发起通知", desc: "复核提醒与协同消息" },
+];
+
+const CONFIRMATIONS: Array<{
+  key: ManualConfirmationResource;
+  name: string;
+  trigger: string;
+}> = [
+  { key: "notify_service", name: "通知外发", trigger: "发送复核提醒、协同消息" },
+  { key: "db_case_archive", name: "结论入库", trigger: "AI 归因结论写入案例库" },
+  { key: "etl_reprocess", name: "ETL 重跑 / 补数", trigger: "触发数据重算或批次补数" },
+];
+
+const principalLevelLabels: Record<PrincipalAccessLevel, string> = {
+  use: "仅使用",
+  manage: "配置管理",
+};
+
+const readableLevelLabels: Record<ReadableAccessLevel, string> = {
+  read: "只读",
+  masked_read: "脱敏只读",
+};
+
+const operationPolicyLabels: Record<OperationPolicy, string> = {
+  allow: "允许",
+  confirm: "需确认",
+};
+
+const reviewerLabels: Record<ConfirmationReviewer, string> = {
+  business_owner: "业务负责人",
+  finance_reviewer: "财务复核人",
+  platform_admin: "平台管理员",
+};
+
 export function Step4Security({ form, patch, disabled, tools }: Props) {
-  const selected = tools.filter((t) => form.selectedToolNames.includes(t.name));
-  const counts = {
-    none: selected.filter((t) => t.sideEffect === "none").length,
-    notify: selected.filter((t) => t.sideEffect === "notify").length,
-    write: selected.filter((t) => t.sideEffect === "write").length,
+  const selectedTools = tools.filter((t) => form.selectedToolNames.includes(t.name));
+  const sideEffectCounts = {
+    none: selectedTools.filter((t) => t.sideEffect === "none").length,
+    notify: selectedTools.filter((t) => t.sideEffect === "notify").length,
+    write: selectedTools.filter((t) => t.sideEffect === "write").length,
   };
-  const hasWrite = counts.write > 0;
+
+  const toggleList = <T extends string>(
+    key: T,
+    current: T[],
+    field: keyof WizardFormState,
+  ) => {
+    if (disabled) return;
+    patch({
+      [field]: current.includes(key)
+        ? current.filter((item) => item !== key)
+        : [...current, key],
+    } as Partial<WizardFormState>);
+  };
+
+  const patchRecord = <K extends string, V extends string>(
+    field: keyof WizardFormState,
+    current: Record<K, V>,
+    key: K,
+    value: V,
+  ) => {
+    if (disabled) return;
+    patch({ [field]: { ...current, [key]: value } } as Partial<WizardFormState>);
+  };
 
   return (
-    <div className="w-full animate-in slide-in-from-bottom-4 space-y-5 p-4 duration-500 sm:p-5 xl:p-6">
-      {/* 边界声明 */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:p-6">
-        <h4 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-800">
-          <ShieldAlert className="h-5 w-5 text-rose-600" />
-          安全与数据隔离
-        </h4>
-
-        <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50/50 p-4">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-            <div className="flex-1">
-              <div className="font-bold text-emerald-900">POC 阶段强制安全边界</div>
-              <ul className="mt-2 space-y-1 text-xs leading-6 text-emerald-800">
-                <li>
-                  · 所有 Tool 的 <code className="rounded bg-white px-1 font-mono">sideEffect</code>
-                  仅允许 <b>none</b> 或 <b>notify</b>，禁止写入 SAP / DMS / 帆软等业务系统；
-                </li>
-                <li>· 模型只接收脱敏后的证据摘要，禁止把单号 / MDM ID / 金额原文发往模型；</li>
-                <li>· 任何"自动修复 / 自动过账 / 替代外部系统"动作均被 Runtime 层拒绝；</li>
-                <li>· 复核结论由人工在工作台确认后才能落库为案例。</li>
-              </ul>
-            </div>
+    <div className="w-full animate-in slide-in-from-bottom-4 space-y-4 p-4 duration-500 sm:p-5 xl:p-6">
+      <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h4 className="flex items-center gap-2 text-base font-bold text-slate-800">
+              <ShieldAlert className="h-5 w-5 text-blue-600" />
+              资源授权配置
+            </h4>
+            <p className="mt-1 text-sm text-slate-500">
+              配置谁能用、Agent 能读什么、能操作什么，以及哪些动作必须人工确认。
+            </p>
+          </div>
+          <div className="grid grid-cols-4 gap-2 text-center text-[11px]">
+            <SummaryPill label="主体" value={form.modelAccessPrincipals.length} />
+            <SummaryPill label="可读" value={form.agentReadableResources.length} />
+            <SummaryPill label="可操作" value={form.agentOperableResources.length} />
+            <SummaryPill label="需确认" value={form.manualConfirmationResources.length} />
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <SideEffectStat tone="emerald" label="无副作用 (none)" value={counts.none} />
-          <SideEffectStat tone="amber" label="可通知 (notify)" value={counts.notify} />
-          <SideEffectStat
-            tone={hasWrite ? "rose" : "slate"}
-            label="写入 (write)"
-            value={counts.write}
-          />
-        </div>
+        <div className="min-w-0 divide-y divide-slate-100">
+              <ConfigBlock
+              icon={UserRoundCheck}
+              title="模型与 Agent 使用授权"
+              desc="勾选授权主体，并为每个主体选择访问级别。"
+            >
+              <div className="overflow-hidden rounded-lg border border-slate-200">
+                <Header columns="grid-cols-[minmax(8rem,1.1fr)_5rem_minmax(8rem,1fr)_8rem_5rem]">
+                  <div>授权主体</div>
+                  <div>类型</div>
+                  <div>范围</div>
+                  <div>访问级别</div>
+                  <div className="text-right">启用</div>
+                </Header>
+                {PRINCIPALS.map((item) => {
+                  const enabled = form.modelAccessPrincipals.includes(item.key);
+                  return (
+                    <div key={item.key}>
+                      <ConfigRow
+                        enabled={enabled}
+                        disabled={disabled}
+                        onToggle={() =>
+                          toggleList(item.key, form.modelAccessPrincipals, "modelAccessPrincipals")
+                        }
+                      >
+                        <div className="grid flex-1 grid-cols-[minmax(8rem,1.1fr)_5rem_minmax(8rem,1fr)_8rem] items-center gap-3">
+                          <div className="font-bold text-slate-800">{item.name}</div>
+                          <Badge>{item.type}</Badge>
+                          <div className="text-xs text-slate-500">{item.scope}</div>
+                          <SelectControl
+                            value={form.principalAccessLevels[item.key]}
+                            options={principalLevelLabels}
+                            disabled={disabled || !enabled}
+                            onChange={(value) =>
+                              patchRecord(
+                                "principalAccessLevels",
+                                form.principalAccessLevels,
+                                item.key,
+                                value as PrincipalAccessLevel,
+                              )
+                            }
+                          />
+                        </div>
+                      </ConfigRow>
+                    </div>
+                  );
+                })}
+              </div>
+              </ConfigBlock>
 
-        {hasWrite && (
-          <div className="mt-4 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>
-              当前选中的 Tool 中存在 <b>write</b> 副作用，POC 阶段会被 Runtime 强制拦截。
-              如确需写入业务系统，请在 Governance 模块提交审批工单。
-            </span>
-          </div>
-        )}
-      </div>
+              <ConfigBlock
+                icon={RadioTower}
+                title="Agent 可访问的数据资源"
+                desc="数据接入仅来自 API、ETL 和系统库；每个资源可单独选择访问方式。"
+              >
+              <div className="mb-3 flex flex-wrap gap-2">
+                {["API", "ETL", "系统库"].map((source) => (
+                  <span
+                    key={source}
+                    className="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-bold text-slate-600"
+                  >
+                    {source}
+                  </span>
+                ))}
+                <label className="ml-auto inline-flex items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={form.desensitize}
+                    disabled={disabled}
+                    onChange={(e) => patch({ desensitize: e.target.checked })}
+                    className="h-3.5 w-3.5 rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  模型调用前脱敏
+                </label>
+              </div>
+              <div className="overflow-hidden rounded-lg border border-slate-200">
+                {READABLE_RESOURCES.map((item) => {
+                  const enabled = form.agentReadableResources.includes(item.key);
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.key}>
+                      <ConfigRow
+                        enabled={enabled}
+                        disabled={disabled}
+                        onToggle={() =>
+                          toggleList(item.key, form.agentReadableResources, "agentReadableResources")
+                        }
+                      >
+                        <div className="grid flex-1 grid-cols-[minmax(10rem,1fr)_5rem_6rem_8rem_minmax(8rem,1fr)] items-center gap-3">
+                          <div className="flex items-center gap-2 font-bold text-slate-800">
+                            <Icon className="h-4 w-4 text-blue-600" />
+                            {item.name}
+                          </div>
+                          <Badge>{item.source}</Badge>
+                          <div className="text-xs font-bold text-slate-600">{item.permission}</div>
+                          <SelectControl
+                            value={form.readableAccessLevels[item.key]}
+                            options={readableLevelLabels}
+                            disabled={disabled || !enabled}
+                            onChange={(value) =>
+                              patchRecord(
+                                "readableAccessLevels",
+                                form.readableAccessLevels,
+                                item.key,
+                                value as ReadableAccessLevel,
+                              )
+                            }
+                          />
+                          <div className="text-xs text-slate-500">{item.desc}</div>
+                        </div>
+                      </ConfigRow>
+                    </div>
+                  );
+                })}
+              </div>
+              </ConfigBlock>
 
-      {/* 数据沙箱配置 */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:p-6">
-        <h4 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-800">
-          <FolderLock className="h-5 w-5 text-indigo-600" />
-          数据沙箱与脱敏
-        </h4>
-
-        <div className="space-y-4">
-          <div>
-            <label className="mb-2 block text-xs font-bold text-slate-700">
-              数据权限沙箱 (Data Sandbox)
-            </label>
-            <div className="grid gap-2 md:grid-cols-2">
-              <SandboxOption
-                checked={form.sandboxMode === "strict"}
-                onClick={() => !disabled && patch({ sandboxMode: "strict" })}
-                title="严格隔离"
-                desc="仅允许访问该 Agent owner 所属组织/业务线的数据，跨域访问被拒绝。"
-                icon={ShieldCheck}
-                tone="emerald"
-              />
-              <SandboxOption
-                checked={form.sandboxMode === "global_read_only"}
-                onClick={() => !disabled && patch({ sandboxMode: "global_read_only" })}
-                title="全局只读"
-                desc="可访问全部业务线只读数据；写入仍被禁止。需平台管理员二次审批。"
-                icon={Eye}
-                tone="blue"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-xs font-bold text-slate-700">敏感字段脱敏</label>
-            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-              <input
-                type="checkbox"
-                checked={form.desensitize}
-                disabled={disabled}
-                onChange={(e) => patch({ desensitize: e.target.checked })}
-                className="mt-0.5 h-4 w-4 rounded text-rose-600 focus:ring-rose-500"
-              />
-              <div className="flex-1">
-                <div className="text-sm font-bold text-slate-700">
-                  把 PII / 单号 / 金额 替换为占位符后再传给模型
+              <ConfigBlock
+                icon={Wrench}
+                title="Agent 可操作的中台资源"
+                desc="配置 Agent 对中台资源的操作策略：允许、需确认或关闭。"
+              >
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_14rem]">
+                <div className="overflow-hidden rounded-lg border border-slate-200">
+                  {OPERABLE_RESOURCES.map((item) => {
+                    const enabled = form.agentOperableResources.includes(item.key);
+                    return (
+                      <div key={item.key}>
+                        <ConfigRow
+                          enabled={enabled}
+                          disabled={disabled}
+                          onToggle={() =>
+                            toggleList(
+                              item.key,
+                              form.agentOperableResources,
+                              "agentOperableResources",
+                            )
+                          }
+                        >
+                          <div className="grid flex-1 grid-cols-[minmax(8rem,1fr)_6rem_8rem_minmax(8rem,1fr)] items-center gap-3">
+                            <div className="font-bold text-slate-800">{item.name}</div>
+                            <Badge>{item.operation}</Badge>
+                            <SelectControl
+                              value={form.operationPolicies[item.key]}
+                              options={operationPolicyLabels}
+                              disabled={disabled || !enabled}
+                              onChange={(value) =>
+                                patchRecord(
+                                  "operationPolicies",
+                                  form.operationPolicies,
+                                  item.key,
+                                  value as OperationPolicy,
+                                )
+                              }
+                            />
+                            <div className="text-xs text-slate-500">{item.desc}</div>
+                          </div>
+                        </ConfigRow>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="mt-1 text-xs text-slate-500">
-                  Model Gateway 会把 billNo / mdmId / amount 替换为 X / Y / A 等占位符；
-                  原文证据仅保存在内网 Trace 中，方便复核但不出域。
+                <div className="grid gap-2">
+                  <StatCard label="无副作用 Tool" value={sideEffectCounts.none} tone="emerald" />
+                  <StatCard label="通知类 Tool" value={sideEffectCounts.notify} tone="amber" />
+                  <StatCard label="写入类 Tool" value={sideEffectCounts.write} tone="slate" />
                 </div>
               </div>
-            </label>
-          </div>
-        </div>
+              </ConfigBlock>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-          <BoundaryCard
-            tone="emerald"
-            label="财务结算数据库"
-            mode="只读"
-            modeIcon={Eye}
-            badges={["db.billing.orders", "db.billing.invoices"]}
-          />
-          <BoundaryCard
-            tone="cyan"
-            label="对账规则 / 案例库"
-            mode="只读"
-            modeIcon={Eye}
-            badges={["rule.eval_*", "skill.report_template"]}
-          />
-          <BoundaryCard
-            tone="rose"
-            label="HR / 薪酬系统"
-            mode="禁止访问"
-            modeIcon={ShieldBan}
-            badges={["wall_off:by_policy"]}
-            denied
-          />
+              <ConfigBlock
+                icon={KeyRound}
+                title="需要人工确认的资源操作"
+                desc="启用确认点，并指定不同动作的确认人。"
+              >
+              <div className="overflow-hidden rounded-lg border border-slate-200">
+                <Header columns="grid-cols-[minmax(8rem,1fr)_minmax(11rem,1.2fr)_9rem_5rem]">
+                  <div>动作</div>
+                  <div>触发条件</div>
+                  <div>确认人</div>
+                  <div className="text-right">启用</div>
+                </Header>
+                {CONFIRMATIONS.map((item) => {
+                  const enabled = form.manualConfirmationResources.includes(item.key);
+                  return (
+                    <div key={item.key}>
+                      <ConfigRow
+                        enabled={enabled}
+                        disabled={disabled}
+                        onToggle={() =>
+                          toggleList(
+                            item.key,
+                            form.manualConfirmationResources,
+                            "manualConfirmationResources",
+                          )
+                        }
+                      >
+                        <div className="grid flex-1 grid-cols-[minmax(8rem,1fr)_minmax(11rem,1.2fr)_9rem] items-center gap-3">
+                          <div className="font-bold text-slate-800">{item.name}</div>
+                          <div className="text-xs text-slate-500">{item.trigger}</div>
+                          <SelectControl
+                            value={form.confirmationReviewers[item.key]}
+                            options={reviewerLabels}
+                            disabled={disabled || !enabled}
+                            onChange={(value) =>
+                              patchRecord(
+                                "confirmationReviewers",
+                                form.confirmationReviewers,
+                                item.key,
+                                value as ConfirmationReviewer,
+                              )
+                            }
+                          />
+                        </div>
+                      </ConfigRow>
+                    </div>
+                  );
+                })}
+              </div>
+              </ConfigBlock>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
 
-function SideEffectStat({
+function SummaryPill({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded border border-slate-200 bg-slate-50 px-3 py-1.5">
+      <div className="font-bold text-slate-800">{value}</div>
+      <div className="text-slate-500">{label}</div>
+    </div>
+  );
+}
+
+function ConfigBlock({
+  icon: Icon,
+  title,
+  desc,
+  children,
+}: {
+  icon: React.ElementType;
+  title: string;
+  desc: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="p-4">
+      <div className="mb-3">
+        <h5 className="flex items-center gap-2 text-sm font-bold text-slate-800">
+          <Icon className="h-4 w-4 text-blue-600" />
+          {title}
+        </h5>
+        <p className="mt-1 text-xs text-slate-500">{desc}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Header({ columns, children }: { columns: string; children: React.ReactNode }) {
+  return (
+    <div className={cn("grid bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500", columns)}>
+      {children}
+    </div>
+  );
+}
+
+function ConfigRow({
+  enabled,
+  onToggle,
+  disabled,
+  children,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+  disabled: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-3 border-t border-slate-100 px-3 py-3 first:border-t-0",
+        enabled ? "bg-white" : "bg-slate-50/70",
+      )}
+    >
+      {children}
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onToggle}
+        className="ml-auto shrink-0 rounded p-1 text-slate-400 hover:bg-slate-100 disabled:hover:bg-transparent"
+        title={enabled ? "停用" : "启用"}
+      >
+        {enabled ? (
+          <ToggleRight className="h-7 w-7 text-blue-600" />
+        ) : (
+          <ToggleLeft className="h-7 w-7 text-slate-300" />
+        )}
+      </button>
+    </div>
+  );
+}
+
+function SelectControl({
+  value,
+  options,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  options: Record<string, string>;
+  onChange: (value: string) => void;
+  disabled: boolean;
+}) {
+  return (
+    <select
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      className="h-8 rounded border border-slate-200 bg-white px-2 text-xs font-bold text-slate-700 outline-none focus:border-blue-400 disabled:bg-slate-100 disabled:text-slate-400"
+    >
+      {Object.entries(options).map(([key, label]) => (
+        <option key={key} value={key}>
+          {label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex w-fit items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+      <Check className="h-3 w-3 text-blue-500" />
+      {children}
+    </span>
+  );
+}
+
+function StatCard({
   label,
   value,
   tone,
 }: {
   label: string;
   value: number;
-  tone: "emerald" | "amber" | "rose" | "slate";
+  tone: "emerald" | "amber" | "slate";
 }) {
   const cls: Record<string, string> = {
     emerald: "border-emerald-200 bg-emerald-50 text-emerald-700",
     amber: "border-amber-200 bg-amber-50 text-amber-700",
-    rose: "border-rose-200 bg-rose-50 text-rose-700",
     slate: "border-slate-200 bg-slate-50 text-slate-600",
   };
   return (
     <div className={cn("rounded-lg border p-3", cls[tone])}>
       <div className="text-[10px] font-bold uppercase tracking-wider">{label}</div>
       <div className="mt-1 text-2xl font-bold">{value}</div>
-    </div>
-  );
-}
-
-function SandboxOption({
-  checked,
-  onClick,
-  title,
-  desc,
-  icon: Icon,
-  tone,
-}: {
-  checked: boolean;
-  onClick: () => void;
-  title: string;
-  desc: string;
-  icon: React.ElementType;
-  tone: "emerald" | "blue";
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex items-start gap-3 rounded-lg border-2 p-3 text-left transition-all",
-        checked
-          ? tone === "emerald"
-            ? "border-emerald-500 bg-emerald-50/40"
-            : "border-blue-500 bg-blue-50/40"
-          : "border-slate-200 bg-white hover:border-blue-300",
-      )}
-    >
-      <Icon
-        className={cn(
-          "mt-0.5 h-4 w-4 shrink-0",
-          checked ? (tone === "emerald" ? "text-emerald-600" : "text-blue-600") : "text-slate-400",
-        )}
-      />
-      <div>
-        <div className="text-sm font-bold text-slate-800">{title}</div>
-        <div className="mt-0.5 text-[11px] text-slate-500">{desc}</div>
-      </div>
-    </button>
-  );
-}
-
-function BoundaryCard({
-  label,
-  mode,
-  modeIcon: ModeIcon,
-  badges,
-  tone,
-  denied,
-}: {
-  label: string;
-  mode: string;
-  modeIcon: React.ElementType;
-  badges: string[];
-  tone: "emerald" | "blue" | "cyan" | "rose";
-  denied?: boolean;
-}) {
-  const accent: Record<string, string> = {
-    emerald: "border-l-emerald-500",
-    blue: "border-l-blue-500",
-    cyan: "border-l-cyan-500",
-    rose: "border-l-rose-500",
-  };
-  const tag: Record<string, string> = {
-    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
-    cyan: "bg-cyan-50 text-cyan-700 border-cyan-200",
-    rose: "bg-rose-50 text-rose-700 border-rose-200",
-  };
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 rounded-lg border border-l-4 bg-white p-3 shadow-sm",
-        accent[tone],
-        denied && "opacity-80",
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-          <Database className="h-4 w-4 text-slate-400" />
-          {label}
-        </div>
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-bold",
-            tag[tone],
-          )}
-        >
-          <ModeIcon className="h-3 w-3" />
-          {mode}
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {badges.map((b) => (
-          <span
-            key={b}
-            className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600"
-          >
-            {b}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }

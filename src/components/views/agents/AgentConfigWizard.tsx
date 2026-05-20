@@ -39,8 +39,8 @@ const STEPS: Array<{
   { id: 1, title: "基础设定", desc: "身份与系统提示词", icon: Info },
   { id: 2, title: "知识与记忆", desc: "模型底座 + 记忆策略", icon: Cpu },
   { id: 3, title: "能力挂载", desc: "Skill / Tool 真实清单", icon: Wrench },
-  { id: 4, title: "安全隔离", desc: "副作用边界与脱敏", icon: ShieldAlert },
-  { id: 5, title: "Runtime 架构", desc: "拓扑 + Pipeline 五段", icon: GitBranch },
+  { id: 4, title: "资源授权", desc: "谁能用 / 能读写什么", icon: ShieldAlert },
+  { id: 5, title: "Runtime 架构", desc: "闭环 Workflow 画布", icon: GitBranch },
   { id: 6, title: "真沙盒测试", desc: "调 /api/analyze 验证", icon: TerminalSquare },
 ];
 
@@ -102,7 +102,7 @@ export function AgentConfigWizard({ agentId, onBack }: { agentId: string; onBack
       case 4:
         return <Step4Security form={form} patch={patch} disabled={disabled} tools={tools} />;
       case 5:
-        return <Step5Runtime form={form} gateway={gateway} />;
+        return <Step5Runtime form={form} patch={patch} disabled={disabled} gateway={gateway} />;
       case 6:
         return <Step6Sandbox form={form} gateway={gateway} />;
       default:

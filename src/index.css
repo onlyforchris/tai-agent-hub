@@ -14,12 +14,75 @@
     @apply font-sans antialiased bg-slate-50 text-slate-900;
   }
 
-  /* Global scrollbar hiding for a cleaner UI while keeping scrollability */
   * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   *::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
   }
+}
+
+.workflow-studio-canvas .react-flow__panel {
+  z-index: 5;
+}
+
+.workflow-studio-canvas .react-flow__node {
+  z-index: 3;
+}
+
+.workflow-studio-canvas .react-flow__edge {
+  z-index: 2;
+}
+
+.workflow-flow .react-flow__background {
+  background-color: transparent;
+}
+
+.workflow-node {
+  font-family: var(--font-sans);
+}
+
+.workflow-handle {
+  width: 10px !important;
+  height: 10px !important;
+  border: 2.5px solid #fff !important;
+  background: #94a3b8 !important;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4), 0 2px 6px rgba(15, 23, 42, 0.1);
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  z-index: 2;
+}
+
+.workflow-handle--input {
+  background: #94a3b8 !important;
+}
+
+.workflow-handle--output {
+  background: #3b82f6 !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35), 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.workflow-handle:hover {
+  transform: scale(1.2);
+}
+
+.workflow-handle--output:hover {
+  background: #2563eb !important;
+}
+
+.workflow-node:hover .workflow-handle--input {
+  background: #64748b !important;
+}
+
+.workflow-studio-canvas .react-flow__edge-path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.workflow-editor-canvas .react-flow__controls {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.workflow-editor-canvas .react-flow__minimap {
+  border-radius: 8px;
 }

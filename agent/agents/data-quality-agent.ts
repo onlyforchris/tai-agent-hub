@@ -8,6 +8,7 @@ export const dataQualityAgent: AgentDefinition = {
   displayName: "方太数据质检 Agent",
   domain: "财务对账差异归因",
   executionMode: "workflow",
+  workflowTemplateId: "revenue_quality",
   defaultSkills: [
     "same_settlement_multiple_mdmid",
     "revenue_amount_doubled",

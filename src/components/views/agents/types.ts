@@ -86,16 +86,44 @@ export interface HealthzInfo {
   runtime: { agents: number; skills: number; tools: number; runs: number };
 }
 
+export type ModelAccessPrincipal = "finance_org" | "data_team" | "admin_role";
+export type AgentReadableResource = "api_diff_list" | "etl_finance_table" | "db_trace_case";
+export type AgentOperableResource = "rule_engine" | "report_template" | "notify_service";
+export type ManualConfirmationResource = "notify_service" | "db_case_archive" | "etl_reprocess";
+export type PrincipalAccessLevel = "use" | "manage";
+export type ReadableAccessLevel = "read" | "masked_read";
+export type OperationPolicy = "allow" | "confirm";
+export type ConfirmationReviewer = "business_owner" | "finance_reviewer" | "platform_admin";
+export type CaseWritePolicy = "manual_confirmed" | "disabled";
+export type KnowledgeBaseCode = "finance_policy" | "settlement_sop" | "data_dictionary";
+export type KnowledgeUseMode = "retrieve" | "cite" | "eval";
+
 export interface WizardFormState {
   name: string;
   identity: string;
   systemPrompt: string;
   model: "deepseek" | "qwen";
   memoryStrategy: "window" | "summary" | "case_bank";
+  sessionMemoryEnabled: boolean;
+  sessionTtlHours: number;
+  caseMemoryEnabled: boolean;
+  caseWritePolicy: CaseWritePolicy;
+  mountedKnowledgeBases: KnowledgeBaseCode[];
+  knowledgeUseModes: Record<KnowledgeBaseCode, KnowledgeUseMode>;
+  executionMode: "workflow" | "plan_execute" | "react";
+  workflowTemplateId: string;
   selectedSkillCodes: string[];
   selectedToolNames: string[];
   sandboxMode: "strict" | "global_read_only";
   desensitize: boolean;
+  modelAccessPrincipals: ModelAccessPrincipal[];
+  principalAccessLevels: Record<ModelAccessPrincipal, PrincipalAccessLevel>;
+  agentReadableResources: AgentReadableResource[];
+  readableAccessLevels: Record<AgentReadableResource, ReadableAccessLevel>;
+  agentOperableResources: AgentOperableResource[];
+  operationPolicies: Record<AgentOperableResource, OperationPolicy>;
+  manualConfirmationResources: ManualConfirmationResource[];
+  confirmationReviewers: Record<ManualConfirmationResource, ConfirmationReviewer>;
 }
 
 export const DEFAULT_DATA_QUALITY_FORM: WizardFormState = {
@@ -109,6 +137,18 @@ export const DEFAULT_DATA_QUALITY_FORM: WizardFormState = {
 3. 报告固定输出五个标题：根因结论 / 异常首次发生环节 / 证据链摘要 / 复核建议 / 边界说明。`,
   model: "deepseek",
   memoryStrategy: "window",
+  sessionMemoryEnabled: true,
+  sessionTtlHours: 24,
+  caseMemoryEnabled: true,
+  caseWritePolicy: "manual_confirmed",
+  mountedKnowledgeBases: ["finance_policy", "settlement_sop", "data_dictionary"],
+  knowledgeUseModes: {
+    finance_policy: "retrieve",
+    settlement_sop: "cite",
+    data_dictionary: "retrieve",
+  },
+  executionMode: "workflow",
+  workflowTemplateId: "revenue_quality" as const,
   selectedSkillCodes: [
     "same_settlement_multiple_mdmid",
     "revenue_amount_doubled",
@@ -129,6 +169,30 @@ export const DEFAULT_DATA_QUALITY_FORM: WizardFormState = {
   ],
   sandboxMode: "strict",
   desensitize: true,
+  modelAccessPrincipals: ["finance_org", "data_team", "admin_role"],
+  principalAccessLevels: {
+    finance_org: "use",
+    data_team: "use",
+    admin_role: "manage",
+  },
+  agentReadableResources: ["api_diff_list", "etl_finance_table", "db_trace_case"],
+  readableAccessLevels: {
+    api_diff_list: "masked_read",
+    etl_finance_table: "masked_read",
+    db_trace_case: "read",
+  },
+  agentOperableResources: ["rule_engine", "report_template", "notify_service"],
+  operationPolicies: {
+    rule_engine: "allow",
+    report_template: "allow",
+    notify_service: "confirm",
+  },
+  manualConfirmationResources: ["notify_service", "db_case_archive"],
+  confirmationReviewers: {
+    notify_service: "business_owner",
+    db_case_archive: "finance_reviewer",
+    etl_reprocess: "platform_admin",
+  },
 };
 
 export const EMPTY_FORM: WizardFormState = {
@@ -137,8 +201,44 @@ export const EMPTY_FORM: WizardFormState = {
   systemPrompt: "",
   model: "deepseek",
   memoryStrategy: "window",
+  sessionMemoryEnabled: true,
+  sessionTtlHours: 24,
+  caseMemoryEnabled: true,
+  caseWritePolicy: "manual_confirmed",
+  mountedKnowledgeBases: ["finance_policy", "settlement_sop"],
+  knowledgeUseModes: {
+    finance_policy: "retrieve",
+    settlement_sop: "cite",
+    data_dictionary: "retrieve",
+  },
+  executionMode: "workflow",
+  workflowTemplateId: "revenue_quality" as const,
   selectedSkillCodes: [],
   selectedToolNames: [],
   sandboxMode: "strict",
   desensitize: true,
+  modelAccessPrincipals: ["finance_org", "admin_role"],
+  principalAccessLevels: {
+    finance_org: "use",
+    data_team: "use",
+    admin_role: "manage",
+  },
+  agentReadableResources: ["api_diff_list", "etl_finance_table", "db_trace_case"],
+  readableAccessLevels: {
+    api_diff_list: "masked_read",
+    etl_finance_table: "masked_read",
+    db_trace_case: "read",
+  },
+  agentOperableResources: ["rule_engine", "report_template"],
+  operationPolicies: {
+    rule_engine: "allow",
+    report_template: "allow",
+    notify_service: "confirm",
+  },
+  manualConfirmationResources: ["notify_service", "db_case_archive"],
+  confirmationReviewers: {
+    notify_service: "business_owner",
+    db_case_archive: "finance_reviewer",
+    etl_reprocess: "platform_admin",
+  },
 };

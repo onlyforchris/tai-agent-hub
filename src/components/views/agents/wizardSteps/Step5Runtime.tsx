@@ -4,91 +4,275 @@ import {
   ArrowDown,
   Bot,
   BrainCircuit,
-  CheckCircle2,
   Database,
   GitBranch,
   Layers,
   Network,
-  ShieldCheck,
   Sparkles,
   Waypoints,
   Wrench,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import type { GatewayInfo, WizardFormState } from "@/src/components/views/agents/types";
+import { workflowApi } from "@/src/lib/workflowApi";
+import {
+  DATA_QUALITY_WORKFLOW_TEMPLATE_ID,
+  findWorkflowListItem,
+  mergeAgentWorkflowTemplates,
+} from "@/src/lib/workflowCatalog";
+import type { WorkflowListItem } from "@/src/types/workflow";
+import { WorkflowPreviewCanvas } from "@/src/components/views/agents/workflow/WorkflowPreviewCanvas";
 
 interface Props {
   form: WizardFormState;
+  patch: (p: Partial<WizardFormState>) => void;
+  disabled: boolean;
   gateway: GatewayInfo | null;
 }
 
-// 与 trace store 的 RunStep.stepType 完全一致
-const PIPELINE: Array<{
-  type: "plan" | "tool_call" | "rule" | "model" | "review_route";
-  label: string;
-  desc: string;
+const EXECUTION_MODES: Array<{
+  key: WizardFormState["executionMode"];
+  title: string;
+  status: string;
   icon: React.ElementType;
-  module: string;
-  cls: string;
+  desc: string;
+  logic: string;
+  available: boolean;
 }> = [
   {
-    type: "plan",
-    label: "plan",
-    desc: "Planner 按差异类型路由到对应业务 Skill",
-    icon: Bot,
-    module: "Agent Runtime · Planner",
-    cls: "border-indigo-300 bg-indigo-50 text-indigo-700",
+    key: "workflow",
+    title: "工作流编排模式",
+    status: "一期已启用",
+    icon: Waypoints,
+    desc: "按可视化流程、规则节点和复核路由顺序执行，适合数据质检的稳定闭环。",
+    logic: "用于收入回款、合同资产、库存等需要可审计、可回放、可持续沉淀的质检场景。",
+    available: true,
   },
   {
-    type: "tool_call",
-    label: "tool_call",
-    desc: "执行 Skill 中声明的取数 Tool（DMS / SAP / Master）",
-    icon: Wrench,
-    module: "Tool Registry · Connectors",
-    cls: "border-blue-300 bg-blue-50 text-blue-700",
-  },
-  {
-    type: "rule",
-    label: "rule",
-    desc: "确定性规则计算（金额、MDM、状态、重复）",
-    icon: ShieldCheck,
-    module: "Rule Engine · Skill Hub",
-    cls: "border-emerald-300 bg-emerald-50 text-emerald-700",
-  },
-  {
-    type: "model",
-    label: "model",
-    desc: "Model Gateway 用脱敏摘要生成归因报告",
-    icon: Sparkles,
-    module: "Model Gateway",
-    cls: "border-amber-300 bg-amber-50 text-amber-700",
-  },
-  {
-    type: "review_route",
-    label: "review_route",
-    desc: "按 Skill review 配置路由到对应角色",
+    key: "plan_execute",
+    title: "计划-执行模式",
+    status: "二期开放",
     icon: GitBranch,
-    module: "Review Router",
-    cls: "border-rose-300 bg-rose-50 text-rose-700",
+    desc: "先生成排查计划，再按计划调度已授权 Tool、规则和模型。",
+    logic: "适合数据范围扩大、路径不固定，但仍需要人工可追溯的归因场景。",
+    available: false,
+  },
+  {
+    key: "react",
+    title: "自主推理模式",
+    status: "远期规划",
+    icon: BrainCircuit,
+    desc: "模型根据观察结果自主决定下一步动作，并持续写入 Trace。",
+    logic: "适合私有化模型、权限边界和回放审计成熟后的复杂链路归因。",
+    available: false,
   },
 ];
 
-export function Step5Runtime({ form, gateway }: Props) {
+const LOOP_STAGES = ["模板配置", "只读预览", "运行 Trace", "复核回写", "持续优化"];
+
+export function Step5Runtime({ form, patch, disabled, gateway }: Props) {
+  const [templates, setTemplates] = React.useState<WorkflowListItem[]>([]);
+  const selectedTemplate = form.workflowTemplateId || DATA_QUALITY_WORKFLOW_TEMPLATE_ID;
+
+  React.useEffect(() => {
+    void workflowApi
+      .list({ status: "published", category: "data_quality" })
+      .then((items) => setTemplates(mergeAgentWorkflowTemplates(items)))
+      .catch(() => setTemplates(mergeAgentWorkflowTemplates([])));
+  }, []);
+
+  React.useEffect(() => {
+    if (!form.workflowTemplateId) {
+      patch({ workflowTemplateId: DATA_QUALITY_WORKFLOW_TEMPLATE_ID });
+    }
+  }, [form.workflowTemplateId, patch]);
+
+  const openWorkflowEditor = () => {
+    sessionStorage.setItem("workflow-editor-id", selectedTemplate);
+    window.dispatchEvent(
+      new CustomEvent("agent-hub-tab-switch", { detail: { tab: "workflows" } }),
+    );
+    window.dispatchEvent(
+      new CustomEvent("workflow-open-editor", { detail: { workflowId: selectedTemplate } }),
+    );
+  };
+  const selectedMode =
+    EXECUTION_MODES.find((mode) => mode.key === form.executionMode) ?? EXECUTION_MODES[0];
+  const SelectedModeIcon = selectedMode.icon;
+
   return (
     <div className="w-full animate-in slide-in-from-bottom-4 space-y-5 p-4 duration-500 sm:p-5 xl:p-6">
-      {/* 架构拓扑 */}
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:p-6">
+        <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h4 className="flex items-center gap-2 text-lg font-bold text-slate-800">
+              <GitBranch className="h-5 w-5 text-blue-600" />
+              运行策略选择
+            </h4>
+            <p className="mt-1 text-sm text-slate-500">
+              配置 Agent 的执行方式，决定 Planner 如何调度 Skill、Tool、规则、模型和复核路由。
+            </p>
+          </div>
+          <span className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-[11px] font-bold text-blue-700">
+            Agent 配置向导 / 第 5 步
+          </span>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-3">
+          {EXECUTION_MODES.map((mode) => {
+            const Icon = mode.icon;
+            const selected = selectedMode.key === mode.key;
+            const selectable = mode.available && !disabled;
+            return (
+              <button
+                key={mode.key}
+                type="button"
+                disabled={!selectable}
+                onClick={() => patch({ executionMode: mode.key })}
+                className={cn(
+                  "min-h-[180px] rounded-lg border p-4 text-left transition-all",
+                  selected
+                    ? "border-blue-300 bg-blue-50 shadow-sm ring-2 ring-blue-100"
+                    : "border-slate-200 bg-slate-50",
+                  selectable && "hover:border-blue-300 hover:bg-white",
+                  !mode.available && "cursor-not-allowed opacity-75",
+                  disabled && mode.available && "cursor-default",
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded border bg-white",
+                        selected
+                          ? "border-blue-200 text-blue-700"
+                          : "border-slate-200 text-slate-500",
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900">{mode.title}</div>
+                      <div className="mt-0.5 font-mono text-[10px] text-slate-400">{mode.key}</div>
+                    </div>
+                  </div>
+                  <span
+                    className={cn(
+                      "rounded px-2 py-1 text-[10px] font-bold",
+                      selected ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-600",
+                    )}
+                  >
+                    {selected ? "当前选择" : mode.status}
+                  </span>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-slate-600">{mode.desc}</p>
+                <p className="mt-2 text-xs leading-5 text-slate-500">
+                  <span className="font-bold text-slate-800">选择逻辑：</span>
+                  {mode.logic}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex items-start gap-2 rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-[11px] leading-5 text-indigo-700">
+          <SelectedModeIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>
+            当前 Agent 使用 <b>{selectedMode.title}</b>：{selectedMode.desc}
+          </span>
+        </div>
+      </div>
+
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 bg-white px-5 py-4 xl:px-6">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h4 className="flex items-center gap-2 text-lg font-bold text-slate-800">
+                <Waypoints className="h-5 w-5 text-blue-600" />
+                Workflow 模板配置
+              </h4>
+              <p className="mt-1 text-sm text-slate-500">
+                方太数据质检 Agent Runtime 默认绑定「收入回款数据质检」模板（9 节点纵向 DAG）；画布为只读预览，编辑与发布请前往 Workflow 管理。
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={openWorkflowEditor}
+              className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-100"
+            >
+              在 Workflow 管理中编辑
+            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              {LOOP_STAGES.map((stage) => (
+                <span
+                  key={stage}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-600"
+                >
+                  {stage}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            {templates.map((template) => {
+              const selected = selectedTemplate === template.id;
+              return (
+                <button
+                  key={template.id}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => patch({ workflowTemplateId: template.id })}
+                  className={cn(
+                    "rounded-lg border p-4 text-left transition-all",
+                    selected
+                      ? "border-blue-300 bg-blue-50 shadow-sm ring-2 ring-blue-100"
+                      : "border-slate-200 bg-slate-50",
+                    !disabled && "hover:border-blue-300 hover:bg-white",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-bold text-slate-900">{template.name}</div>
+                      <div className="mt-1 text-[11px] font-semibold text-slate-500">
+                        {template.owner} / {template.latestVersion}
+                      </div>
+                    </div>
+                    <span
+                      className={cn(
+                        "rounded px-2 py-1 text-[10px] font-bold",
+                        selected ? "bg-blue-600 text-white" : "bg-white text-slate-500",
+                      )}
+                    >
+                      {selected ? "当前模板" : "已发布"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">{template.description}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-slate-50/70 p-4 xl:p-5">
+          <div className="overflow-x-auto">
+            <WorkflowPreviewCanvas
+              templateId={selectedTemplate}
+              templateName={findWorkflowListItem(templates, selectedTemplate).name}
+              templateVersion={findWorkflowListItem(templates, selectedTemplate).latestVersion}
+            />
+          </div>
+        </div>
+      </section>
+
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:p-6">
         <div className="mb-5">
           <h4 className="flex items-center gap-2 text-lg font-bold text-slate-800">
             <Network className="h-5 w-5 text-blue-600" />
             Runtime 架构拓扑
           </h4>
-          <p className="mt-1 text-sm text-slate-500">
-            以方案 V3.0 第 4 章中台模块为单位组织调用关系
-          </p>
         </div>
 
-        {/* 顶部：用户/业务系统 */}
         <div className="flex flex-col items-stretch gap-3">
           <ArchBox
             tone="slate"
@@ -96,16 +280,15 @@ export function Step5Runtime({ form, gateway }: Props) {
             title="差异触发源"
             subtitle="帆软差异清单 / 月结批次 / API 调用"
           />
-          <ArrowDown className="h-4 w-4 text-slate-400" />
+          <ArrowDown className="h-4 w-4 self-center text-slate-400" />
 
-          {/* 中心：Agent Runtime + Model Gateway */}
           <div className="flex w-full flex-col items-center gap-3 lg:flex-row lg:items-stretch">
             <div className="flex-1">
               <ArchBox
                 tone="blue"
                 icon={Bot}
-                title={form.name || "新建领域 Agent"}
-                subtitle="Agent Runtime · Planner + Executor"
+                title={form.name || "方太数据质检 Agent"}
+                subtitle={`Agent Runtime / Workflow: ${findWorkflowListItem(templates, selectedTemplate).name}`}
                 accent="ORCHESTRATOR"
                 large
               />
@@ -118,37 +301,36 @@ export function Step5Runtime({ form, gateway }: Props) {
                 title={gateway?.model ?? "未配置模型"}
                 subtitle={
                   gateway
-                    ? `Model Gateway · provider=${gateway.provider}`
-                    : "Model Gateway · 未配置 Key"
+                    ? `Model Gateway / provider=${gateway.provider}`
+                    : "Model Gateway / 未配置 Key"
                 }
                 accent="MODEL GATEWAY"
               />
             </div>
           </div>
 
-          <ArrowDown className="h-4 w-4 text-slate-400" />
+          <ArrowDown className="h-4 w-4 self-center text-slate-400" />
 
-          {/* 中台四件套 */}
           <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-4">
             <ArchBox
               tone="amber"
               icon={Layers}
               title="Skill Hub"
-              subtitle={`${form.selectedSkillCodes.length} 个挂载 Skill`}
+              subtitle={`${form.selectedSkillCodes.length} 个已挂载 Skill`}
               compact
             />
             <ArchBox
               tone="cyan"
               icon={Wrench}
               title="Tool Registry"
-              subtitle={`${form.selectedToolNames.length} 个装载 Tool`}
+              subtitle={`${form.selectedToolNames.length} 个已装载 Tool`}
               compact
             />
             <ArchBox
               tone="emerald"
               icon={Database}
               title="Connector Hub"
-              subtitle="excel_import · rule_engine · template_engine"
+              subtitle="excel_import / rule_engine / template_engine"
               compact
             />
             <ArchBox
@@ -159,81 +341,6 @@ export function Step5Runtime({ form, gateway }: Props) {
               compact
             />
           </div>
-        </div>
-      </div>
-
-      {/* 执行链路 timeline */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:p-6">
-        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h4 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-              <GitBranch className="h-5 w-5 text-blue-600" />
-              执行链路 (Run Pipeline)
-            </h4>
-            <p className="mt-1 text-sm text-slate-500">
-              下面 5 类 StepType 与 Trace 页面记录的步骤一一对应；点击「Agent 执行追踪」即可回放每条 Run。
-            </p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] text-slate-600">
-            Step Types：<code className="font-mono">plan</code> ·{" "}
-            <code className="font-mono">tool_call</code> ·{" "}
-            <code className="font-mono">rule</code> · <code className="font-mono">model</code> ·{" "}
-            <code className="font-mono">review_route</code>
-          </div>
-        </div>
-
-        <div className="relative">
-          <div className="absolute left-5 top-2 h-[calc(100%-1rem)] w-0.5 bg-slate-200" />
-          <ol className="space-y-3">
-            {PIPELINE.map((step, idx) => {
-              const Icon = step.icon;
-              return (
-                <li key={step.type} className="relative pl-14">
-                  <div className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-white text-sm font-bold text-slate-600 shadow ring-2 ring-slate-200">
-                    {idx + 1}
-                  </div>
-                  <div
-                    className={cn(
-                      "rounded-lg border-2 bg-white p-4 shadow-sm",
-                      step.cls.replace("bg-", "border-").split(" ")[0],
-                    )}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider",
-                            step.cls,
-                          )}
-                        >
-                          <Icon className="h-3.5 w-3.5" />
-                          {step.label}
-                        </span>
-                        <span className="text-sm font-bold text-slate-800">{step.module}</span>
-                      </div>
-                      <BranchTag type={step.type} />
-                    </div>
-                    <p className="mt-2 text-xs leading-6 text-slate-600">{step.desc}</p>
-                    {step.type === "model" && (
-                      <div className="mt-2 inline-flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                        <CheckCircle2 className="h-3 w-3" />
-                        当前 Provider: {gateway?.provider ?? "fallback_template"} · {gateway?.model ?? "—"}
-                      </div>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-
-        <div className="mt-5 flex items-start gap-2 rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-[11px] leading-5 text-indigo-700">
-          <BrainCircuit className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <span>
-            该 Pipeline 是 <b>workflow</b> 执行模式：Planner 按差异类型选 Skill，Executor 顺序执行 Skill 中声明的 Tool/Rule；
-            后续二期支持 <code className="rounded bg-white px-1 font-mono">plan_execute</code> 与
-            <code className="ml-1 rounded bg-white px-1 font-mono">react</code> 模式。
-          </span>
         </div>
       </div>
     </div>
@@ -299,7 +406,7 @@ function ArchBox({
   return (
     <div
       className={cn(
-        "flex w-full flex-col items-center gap-1 rounded-2xl border-2 shadow-sm",
+        "flex w-full flex-col items-center gap-1 rounded-lg border-2 shadow-sm",
         cls.border,
         cls.bg,
         cls.text,
@@ -324,14 +431,5 @@ function ArchBox({
         </span>
       )}
     </div>
-  );
-}
-
-function BranchTag({ type }: { type: string }) {
-  if (type !== "review_route") return null;
-  return (
-    <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
-      触发 NEEDS_REVIEW 状态
-    </span>
   );
 }

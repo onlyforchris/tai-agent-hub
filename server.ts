@@ -11,10 +11,22 @@ import { runAgent } from "./agent/runtime/runtime.js";
 import { traceStore } from "./agent/runtime/trace.js";
 import { seedTraceStore } from "./agent/runtime/seed.js";
 import { connectors } from "./agent/connectors/index.js";
+import {
+  acknowledgeInterfaceAlert,
+  getInterfaceLog,
+  getInterfaceMonitorSummary,
+  listBusinessSystems,
+  listInterfaceAlerts,
+  listInterfaceDefinitions,
+  listInterfaceLogs,
+  listRelatedInterfaceLogs,
+} from "./agent/connectors/interface-monitor.js";
 import { listSkills } from "./agent/skills/registry.js";
 import { listTools } from "./agent/tools/registry.js";
 import { resolveProvider } from "./agent/model/gateway.js";
 import type { DiffRecord } from "./agent/runtime/types.js";
+import { registerWorkflowRoutes } from "./agent/workflows/routes.js";
+import { workflowRepository } from "./agent/workflows/jsonRepository.js";
 
 dotenv.config();
 
@@ -205,6 +217,56 @@ async function startServer() {
     res.json(diffs);
   });
 
+  // ============== 接口日志监控：业务系统接入、日志查看与告警 ==============
+
+  app.get("/api/interface-systems", (_req, res) => {
+    res.json(listBusinessSystems());
+  });
+
+  app.get("/api/interface-definitions", (_req, res) => {
+    res.json(listInterfaceDefinitions());
+  });
+
+  app.get("/api/interface-monitor/summary", (_req, res) => {
+    res.json(getInterfaceMonitorSummary());
+  });
+
+  app.get("/api/interface-logs", (req, res) => {
+    const { system, interfaceCode, status, businessKey, from, to } = req.query;
+    res.json(
+      listInterfaceLogs({
+        system: typeof system === "string" ? system : undefined,
+        interfaceCode: typeof interfaceCode === "string" ? interfaceCode : undefined,
+        status: typeof status === "string" ? status : undefined,
+        businessKey: typeof businessKey === "string" ? businessKey : undefined,
+        from: typeof from === "string" ? from : undefined,
+        to: typeof to === "string" ? to : undefined,
+      }),
+    );
+  });
+
+  app.get("/api/interface-logs/related", (req, res) => {
+    const businessKey = typeof req.query.businessKey === "string" ? req.query.businessKey : "";
+    if (!businessKey) return res.status(400).json({ error: "Missing required query: businessKey" });
+    res.json(listRelatedInterfaceLogs(businessKey));
+  });
+
+  app.get("/api/interface-logs/:id", (req, res) => {
+    const log = getInterfaceLog(req.params.id);
+    if (!log) return res.status(404).json({ error: "Interface log not found" });
+    res.json(log);
+  });
+
+  app.get("/api/interface-alerts", (_req, res) => {
+    res.json(listInterfaceAlerts());
+  });
+
+  app.post("/api/interface-alerts/:id/ack", (req, res) => {
+    const alert = acknowledgeInterfaceAlert(req.params.id);
+    if (!alert) return res.status(404).json({ error: "Interface alert not found" });
+    res.json(alert);
+  });
+
   // ============== 业务接口：触发 Agent 归因 ==============
 
   app.post("/api/analyze", async (req, res) => {
@@ -303,6 +365,9 @@ async function startServer() {
     res.json(run);
   });
 
+  // ============== Workflow 模板 DAG ==============
+  registerWorkflowRoutes(app);
+
   // ============== 静态资源（生产模式）==============
 
   if (isProduction) {
@@ -315,6 +380,7 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Fotile Agent Hub server running on http://localhost:${PORT}`);
+    void workflowRepository.seedIfEmpty().catch((err) => console.warn("[workflows] seed failed:", err));
     // 启动后异步种入演示 Run，让 Trace 页面默认就有数据，
     // 失败不影响服务正常启动。
     void seedTraceStore()

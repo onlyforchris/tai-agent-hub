@@ -145,6 +145,8 @@ export interface AgentDefinition {
   displayName: string;
   domain: string;
   executionMode: "workflow" | "plan_execute" | "react";
+  /** 工作流编排模式下绑定的已发布 Workflow 模板 ID */
+  workflowTemplateId?: string;
   defaultSkills: string[];
   planner: PlannerConfig;
 }

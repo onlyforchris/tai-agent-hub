@@ -89,3 +89,101 @@ export interface ToolMeta {
   inputSchema: Record<string, unknown>;
   outputSchema: Record<string, unknown>;
 }
+
+export type InterfaceHealthStatus = "healthy" | "warning" | "critical";
+export type InterfaceLogStatus = "SUCCESS" | "FAIL" | "TIMEOUT" | "RETRYING";
+export type InterfaceAlertStatus = "open" | "acknowledged" | "resolved";
+export type InterfaceAlertSeverity = "low" | "medium" | "high" | "critical";
+
+export interface BusinessSystem {
+  code: string;
+  name: string;
+  ownerDept: string;
+  ownerRole: string;
+  status: InterfaceHealthStatus;
+  interfaceCount: number;
+  lastHeartbeatAt: string;
+}
+
+export interface InterfaceDefinition {
+  code: string;
+  name: string;
+  sourceSystem: string;
+  targetSystem: string;
+  businessObject: string;
+  frequency: "realtime" | "daily_batch" | "manual";
+  ingestionMode: "API" | "ETL" | "API_ETL";
+  dataScope: string;
+  latestBatchNo: string;
+  latestExtractAt: string;
+  slaMinutes: number;
+  owner: string;
+  description: string;
+}
+
+export interface InterfaceLogRecord {
+  id: string;
+  interfaceCode: string;
+  interfaceName: string;
+  sourceSystem: string;
+  targetSystem: string;
+  businessKey: string;
+  requestAt: string;
+  responseAt?: string;
+  durationMs: number;
+  status: InterfaceLogStatus;
+  errorCode?: string;
+  errorMessage?: string;
+  retryCount: number;
+  payloadDigest: string;
+  ingestionMode: "API" | "ETL" | "API_ETL";
+  batchNo: string;
+  extractedAt: string;
+  originalBizDate: string;
+  relatedDiffId?: string;
+  relatedRunId?: string;
+}
+
+export interface InterfaceAlert {
+  id: string;
+  severity: InterfaceAlertSeverity;
+  interfaceCode: string;
+  interfaceName: string;
+  businessKey?: string;
+  title: string;
+  reason: string;
+  status: InterfaceAlertStatus;
+  ownerRole: string;
+  notifyChannels: Array<"in_app" | "dingtalk" | "email">;
+  createdAt: string;
+}
+
+export interface InterfaceMonitorSummary {
+  totalInterfaces: number;
+  yesterdayLogCount: number;
+  successRate: number;
+  failureCount: number;
+  timeoutCount: number;
+  retryingCount: number;
+  avgDurationMs: number;
+  openAlerts: number;
+  latestBatchNo: string;
+  latestExtractAt: string;
+  etlInterfaceCount: number;
+  systemHealth: Array<{
+    systemCode: string;
+    status: InterfaceHealthStatus;
+    successRate: number;
+    failureCount: number;
+  }>;
+  interfaceHealth: Array<{
+    interfaceCode: string;
+    interfaceName: string;
+    sourceSystem: string;
+    targetSystem: string;
+    status: InterfaceHealthStatus;
+    successRate: number;
+    failureCount: number;
+    avgDurationMs: number;
+  }>;
+}

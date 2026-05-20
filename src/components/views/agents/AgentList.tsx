@@ -32,6 +32,12 @@ const providerLabel: Record<string, string> = {
   fallback_template: "本地兜底模板",
 };
 
+const executionModeLabel: Record<string, string> = {
+  workflow: "工作流模式",
+  plan_execute: "计划-执行模式",
+  react: "自主推理模式",
+};
+
 export function AgentList({ onSelect }: { onSelect: (id: string) => void }) {
   const [agents, setAgents] = useState<AgentMeta[]>([]);
   const [runs, setRuns] = useState<RunSummaryApi[]>([]);
@@ -188,7 +194,7 @@ export function AgentList({ onSelect }: { onSelect: (id: string) => void }) {
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <Database className="h-3 w-3 text-indigo-500" />
-                    {agent.executionMode}
+                    {executionModeLabel[agent.executionMode] ?? agent.executionMode}
                   </span>
                 </div>
                 {isOnline ? (
