@@ -192,7 +192,7 @@ export function Step5Runtime({ form, patch, disabled, gateway }: Props) {
                 Workflow 模板配置
               </h4>
               <p className="mt-1 text-sm text-slate-500">
-                方太数据质检 Agent Runtime 默认绑定「收入回款数据质检」模板（9 节点纵向 DAG）；画布为只读预览，编辑与发布请前往 Workflow 管理。
+                数据质检 Agent Runtime 默认绑定「收入回款数据质检」模板（9 节点纵向 DAG）；画布为只读预览，编辑与发布请前往 Workflow 管理。
               </p>
             </div>
             <button
@@ -287,7 +287,7 @@ export function Step5Runtime({ form, patch, disabled, gateway }: Props) {
               <ArchBox
                 tone="blue"
                 icon={Bot}
-                title={form.name || "方太数据质检 Agent"}
+                title={form.name || "数据质检 Agent"}
                 subtitle={`Agent Runtime / Workflow: ${findWorkflowListItem(templates, selectedTemplate).name}`}
                 accent="ORCHESTRATOR"
                 large

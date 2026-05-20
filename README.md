@@ -1,6 +1,6 @@
 # TAI Agent Hub POC (V3)
 
-方太 Agent 中台 + 数据质检 Agent POC，配套方案文档《方太 Agent 中台 + 数据质检 Agent 建设方案 V3.0》。
+Agent 中台 + 数据质检 Agent POC（演示脱敏版）。
 
 POC 内置真实的 Agent Runtime（不是查表 Mock）：
 1. 接收差异（Connector Hub → DiffRecord）
@@ -259,7 +259,7 @@ chmod +x start.sh stop.sh
 
 ```
 ==============================================
-  方太Agent智能中台 已启动
+  Agent智能中台 已启动
 ==============================================
   端口:     9002
   PID:      12345
@@ -309,7 +309,7 @@ lsof -i:9002
 ```bash
 sudo cat > /etc/systemd/system/tai-agent-hub.service << 'EOF'
 [Unit]
-Description=方太Agent智能中台
+Description=Agent智能中台
 After=network.target
 
 [Service]

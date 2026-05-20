@@ -5,7 +5,7 @@ import {
 } from "@/src/lib/workflowPresets";
 import type { WorkflowGraph, WorkflowListItem } from "@/src/types/workflow";
 
-/** 方太数据质检 Agent 一期默认绑定的 Workflow 模板 */
+/** 数据质检 Agent 一期默认绑定的 Workflow 模板 */
 export const DATA_QUALITY_WORKFLOW_TEMPLATE_ID = "revenue_quality";
 
 export function getDataQualityWorkflowListItem(): WorkflowListItem {

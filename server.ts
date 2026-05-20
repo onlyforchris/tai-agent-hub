@@ -1,4 +1,4 @@
-// 方太 Agent 中台 + 数据质检 Agent POC
+// Agent 中台 + 数据质检 Agent POC
 // server.ts 仅承担路由层：编排请求 → Agent Runtime → 返回 Run/Trace
 // 真实业务逻辑全部下沉到 agent/* 子模块。
 
@@ -62,7 +62,7 @@ async function startServer() {
   app.get("/api/poc-readiness", (_req, res) => {
     res.json({
       stage: "poc",
-      positioning: "fotile-agent-hub-with-data-quality-agent-v3",
+      positioning: "tai-agent-hub-with-data-quality-agent-v3",
       dataMode: "fixture-connector",
       pocScope: ["收入模块", "同结算单多MDM ID", "收入金额翻倍", "SAP/DMS状态回传不一致"],
       hubComponents: [
@@ -379,7 +379,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Fotile Agent Hub server running on http://localhost:${PORT}`);
+    console.log(`Agent Hub server running on http://localhost:${PORT}`);
     void workflowRepository.seedIfEmpty().catch((err) => console.warn("[workflows] seed failed:", err));
     // 启动后异步种入演示 Run，让 Trace 页面默认就有数据，
     // 失败不影响服务正常启动。

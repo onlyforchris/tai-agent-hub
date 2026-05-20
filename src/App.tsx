@@ -84,11 +84,11 @@ const businessNav: { id: Tab; icon: React.ElementType; label: string }[] = [
 ];
 
 const adminBusinessNav: { id: Tab; icon: React.ElementType; label: string }[] = [
-  { id: "tasks", icon: ClipboardCheck, label: "方太数据质检 Agent" },
+  { id: "tasks", icon: ClipboardCheck, label: "数据质检 Agent" },
   { id: "runs", icon: Waypoints, label: "Agent 执行追踪" },
 ];
 
-const VIEW_MODE_KEY = "fotile-agent-view-mode";
+const VIEW_MODE_KEY = "tai-agent-view-mode";
 
 export default function App() {
   const urlParams = readAppUrlParams();

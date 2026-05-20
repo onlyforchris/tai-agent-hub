@@ -105,7 +105,7 @@ function buildFallbackReport(input: ModelGatewayInput): string {
 }
 
 function buildPrompt(payloadToModel: Record<string, unknown>): string {
-  return `你是方太财务对账差异归因平台的报告助手。
+  return `你是财务对账差异归因平台的报告助手。
 只能基于以下脱敏摘要 + 证据撰写中文报告，不得提出自动修复、自动过账、替代 SAP/DMS/帆软的建议。
 不要回填任何具体单号、MDM ID 或金额数字（如出现请使用占位符 A/Y/X）。
 
@@ -143,7 +143,7 @@ async function callOpenAICompatible(
         {
           role: "system",
           content:
-            "你是方太财务对账差异归因平台的报告助手。严格基于脱敏证据撰写中文报告，禁止提出自动修复/自动过账/替代外部系统的建议。",
+            "你是财务对账差异归因平台的报告助手。严格基于脱敏证据撰写中文报告，禁止提出自动修复/自动过账/替代外部系统的建议。",
         },
         { role: "user", content: prompt },
       ],

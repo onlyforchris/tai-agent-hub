@@ -5,7 +5,7 @@ import type { AgentDefinition } from "../runtime/types.js";
 
 export const dataQualityAgent: AgentDefinition = {
   code: "data_quality_agent",
-  displayName: "方太数据质检 Agent",
+  displayName: "数据质检 Agent",
   domain: "财务对账差异归因",
   executionMode: "workflow",
   workflowTemplateId: "revenue_quality",

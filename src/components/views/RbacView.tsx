@@ -29,17 +29,17 @@ const users = [
 ];
 
 const organizations = [
-  { id: "ORG01", name: "财务共享中心", parent: "方太集团", users: 18, dataScope: "收入 / 应收" },
+  { id: "ORG01", name: "财务共享中心", parent: "演示集团", users: 18, dataScope: "收入 / 应收" },
   { id: "ORG02", name: "业务系统部", parent: "信息中心", users: 12, dataScope: "DMS / 主数据" },
   { id: "ORG03", name: "ERP团队", parent: "信息中心", users: 9, dataScope: "SAP / 接口" },
-  { id: "ORG04", name: "内控审计部", parent: "方太集团", users: 6, dataScope: "审计日志" },
+  { id: "ORG04", name: "内控审计部", parent: "演示集团", users: 6, dataScope: "审计日志" },
 ];
 
 const roles = users.map((user) => user.role);
 
 const menus = [
   { id: "MENU_DASHBOARD", name: "运营大盘", module: "核心管控", roles: ["平台管理员", "财务复核人", "审计员"], status: "启用" },
-  { id: "MENU_TASKS", name: "方太数据质检 Agent", module: "业务支撑", roles: ["平台管理员", "财务复核人", "DMS负责人", "SAP负责人", "审计员"], status: "启用" },
+  { id: "MENU_TASKS", name: "数据质检 Agent", module: "业务支撑", roles: ["平台管理员", "财务复核人", "DMS负责人", "SAP负责人", "审计员"], status: "启用" },
   { id: "MENU_AGENT", name: "Agent 配置", module: "核心管控", roles: ["平台管理员"], status: "启用" },
   { id: "MENU_MODEL", name: "模型管理", module: "核心管控", roles: ["平台管理员"], status: "启用" },
   { id: "MENU_SKILL", name: "技能管理", module: "核心管控", roles: ["平台管理员"], status: "启用" },
@@ -48,9 +48,9 @@ const menus = [
 ];
 
 const buttons = [
-  { id: "BTN_ANALYZE", name: "启动归因", page: "方太数据质检 Agent", action: "执行", risk: "中", roles: ["平台管理员", "财务复核人"] },
-  { id: "BTN_CONFIRM", name: "确认归因", page: "方太数据质检 Agent", action: "复核", risk: "中", roles: ["财务复核人"] },
-  { id: "BTN_REJECT", name: "退回复核", page: "方太数据质检 Agent", action: "复核", risk: "中", roles: ["财务复核人", "DMS负责人", "SAP负责人"] },
+  { id: "BTN_ANALYZE", name: "启动归因", page: "数据质检 Agent", action: "执行", risk: "中", roles: ["平台管理员", "财务复核人"] },
+  { id: "BTN_CONFIRM", name: "确认归因", page: "数据质检 Agent", action: "复核", risk: "中", roles: ["财务复核人"] },
+  { id: "BTN_REJECT", name: "退回复核", page: "数据质检 Agent", action: "复核", risk: "中", roles: ["财务复核人", "DMS负责人", "SAP负责人"] },
   { id: "BTN_MODEL_CREATE", name: "新增模型", page: "模型管理", action: "新增", risk: "高", roles: ["平台管理员"] },
   { id: "BTN_MODEL_DELETE", name: "删除模型", page: "模型管理", action: "删除", risk: "高", roles: ["平台管理员"] },
   { id: "BTN_SKILL_CREATE", name: "新增技能", page: "技能管理", action: "新增", risk: "高", roles: ["平台管理员"] },
@@ -69,7 +69,7 @@ const apis = [
 ];
 
 const agents = [
-  { id: "A01", name: "方太数据质检智能归因 Agent", owner: "财务共享中心", status: "运行中" },
+  { id: "A01", name: "数据质检智能归因 Agent", owner: "财务共享中心", status: "运行中" },
   { id: "A02", name: "应收质检 Agent", owner: "财务共享中心", status: "待发布" },
   { id: "A03", name: "合同资产质检 Agent", owner: "财务共享中心", status: "待发布" },
 ];
@@ -87,7 +87,7 @@ const policies = [
   {
     id: "P01",
     subject: "财务复核人",
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource: "帆软差异清单",
     actions: ["调用Agent", "查看报告", "确认归因", "退回复核"],
     decision: "允许" as Decision,
@@ -96,7 +96,7 @@ const policies = [
   {
     id: "P02",
     subject: "DMS负责人",
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource: "DMS收入台账",
     actions: ["查看DMS证据", "补充复核意见"],
     decision: "允许" as Decision,
@@ -105,7 +105,7 @@ const policies = [
   {
     id: "P03",
     subject: "SAP负责人",
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource: "SAP过账凭证",
     actions: ["查看SAP证据", "补充复核意见"],
     decision: "允许" as Decision,
@@ -114,7 +114,7 @@ const policies = [
   {
     id: "P04",
     subject: "审计员",
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource: "审计日志",
     actions: ["查看审计日志"],
     decision: "允许" as Decision,
@@ -123,7 +123,7 @@ const policies = [
   {
     id: "P05",
     subject: "财务复核人",
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource: "SAP过账凭证",
     actions: ["查看原始凭证"],
     decision: "拒绝" as Decision,
@@ -132,7 +132,7 @@ const policies = [
   {
     id: "P06",
     subject: "平台管理员",
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource: "业务 Skill 库",
     actions: ["编辑Skill", "发布Agent", "配置模型"],
     decision: "需审批" as Decision,
@@ -142,7 +142,7 @@ const policies = [
 
 const auditLogs = [
   { time: "10:21:03", user: "财务复核人", action: "调用Agent", target: "DIFF001", result: "允许" },
-  { time: "10:21:05", user: "方太数据质检Agent", action: "读取资源", target: "DMS收入台账", result: "允许/只读" },
+  { time: "10:21:05", user: "数据质检Agent", action: "读取资源", target: "DMS收入台账", result: "允许/只读" },
   { time: "10:21:08", user: "财务复核人", action: "查看SAP原始凭证", target: "SAP过账凭证", result: "拒绝" },
   { time: "10:22:14", user: "平台管理员", action: "发布Agent", target: "数据质检Agent", result: "需审批" },
 ];
@@ -170,7 +170,7 @@ function decideResource(role: string, resource: string, action: string) {
     return {
       id: "AUTO_ADMIN_APPROVAL",
       subject: role,
-      agent: "方太数据质检智能归因 Agent",
+      agent: "数据质检智能归因 Agent",
       resource,
       actions: [action],
       decision: "需审批" as Decision,
@@ -182,7 +182,7 @@ function decideResource(role: string, resource: string, action: string) {
     return {
       id: "AUTO_AUDIT_READONLY",
       subject: role,
-      agent: "方太数据质检智能归因 Agent",
+      agent: "数据质检智能归因 Agent",
       resource,
       actions: [action],
       decision: "拒绝" as Decision,
@@ -193,7 +193,7 @@ function decideResource(role: string, resource: string, action: string) {
   return {
     id: "DEFAULT_DENY",
     subject: role,
-    agent: "方太数据质检智能归因 Agent",
+    agent: "数据质检智能归因 Agent",
     resource,
     actions: [action],
     decision: "拒绝" as Decision,
@@ -237,7 +237,7 @@ export function RbacView() {
   const [section, setSection] = useState<Section>("simulate");
   const [permissionKind, setPermissionKind] = useState<PermissionKind>("Agent权限");
   const [selectedRole, setSelectedRole] = useState("财务复核人");
-  const [selectedAgent, setSelectedAgent] = useState("方太数据质检智能归因 Agent");
+  const [selectedAgent, setSelectedAgent] = useState("数据质检智能归因 Agent");
   const [selectedResource, setSelectedResource] = useState("SAP过账凭证");
   const [selectedAction, setSelectedAction] = useState("查看原始凭证");
   const [selectedMenu, setSelectedMenu] = useState("模型管理");

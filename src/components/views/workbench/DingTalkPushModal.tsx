@@ -32,7 +32,7 @@ export function DingTalkPushModal({ diff, assignee, onClose }: DingTalkPushModal
           <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
             <div className="mb-2 flex items-center gap-2 text-xs font-bold text-blue-700">
               <span className="rounded bg-blue-600 px-1.5 py-0.5 text-[10px] text-white">钉钉</span>
-              方太数据质检 Agent
+              数据质检 Agent
             </div>
             <p className="text-sm font-bold text-slate-900">{assignee}，请确认差异复核</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">

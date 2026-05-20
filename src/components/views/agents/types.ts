@@ -130,7 +130,7 @@ export const DEFAULT_DATA_QUALITY_FORM: WizardFormState = {
   name: "数据质检智能归因 Agent",
   identity:
     "负责对帆软已发现的收入差异执行类型识别、Skill 调度、确定性规则计算和证据链生成，模型仅在最后输出脱敏报告。",
-  systemPrompt: `你是方太财务对账差异归因平台的报告助手。
+  systemPrompt: `你是财务对账差异归因平台的报告助手。
 请严格遵守以下规则：
 1. 仅基于平台给出的脱敏证据撰写中文报告，禁止编造数据；
 2. 禁止提出自动修复 / 自动过账 / 替代 SAP/DMS/帆软 的建议；
