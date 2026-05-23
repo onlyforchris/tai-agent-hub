@@ -41,10 +41,10 @@ export const PALETTE_ITEMS: PaletteItem[] = [
   },
   {
     kind: "PROFILE",
-    label: "数据质检",
+    label: "对账治理",
     group: "质量",
     role: "process",
-    defaultTitle: "数据质检",
+    defaultTitle: "对账治理",
     defaultDesc: "字段完整性、类型、空值、主键重复",
     defaultMeta: "quality_gate",
     tone: "cyan",

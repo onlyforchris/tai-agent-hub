@@ -87,7 +87,7 @@ function CanvasControls() {
 
 function WorkflowCanvasInner({
   templateId,
-  templateName = "收入回款数据质检",
+  templateName = "收入回款对账治理",
   templateVersion = "v1.0",
 }: Props) {
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);

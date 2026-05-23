@@ -23,6 +23,44 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-default,
+  .scrollbar-default * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+    -ms-overflow-style: auto;
+  }
+
+  .scrollbar-default::-webkit-scrollbar,
+  .scrollbar-default *::-webkit-scrollbar {
+    display: block;
+    width: 10px;
+    height: 10px;
+  }
+
+  .scrollbar-default::-webkit-scrollbar-thumb,
+  .scrollbar-default *::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-color: #cbd5e1;
+    background-clip: content-box;
+  }
+
+  .scrollbar-default::-webkit-scrollbar-track,
+  .scrollbar-default *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
 .workflow-studio-canvas .react-flow__panel {
   z-index: 5;
 }

@@ -132,6 +132,7 @@ export interface AgentRun {
   confidence?: number;
   rootCause?: string;
   firstAbnormalNode?: string;
+  evidence?: EvidenceItem[];
   reviewRoutes?: string[];
   reportText?: string;
   durationMs?: number;

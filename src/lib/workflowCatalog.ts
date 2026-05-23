@@ -5,7 +5,7 @@ import {
 } from "@/src/lib/workflowPresets";
 import type { WorkflowGraph, WorkflowListItem } from "@/src/types/workflow";
 
-/** 数据质检 Agent 一期默认绑定的 Workflow 模板 */
+/** 对账治理 Agent 一期默认绑定的 Workflow 模板 */
 export const DATA_QUALITY_WORKFLOW_TEMPLATE_ID = "revenue_quality";
 
 export function getDataQualityWorkflowListItem(): WorkflowListItem {
@@ -16,7 +16,7 @@ export function getDataQualityWorkflowGraph(): WorkflowGraph {
   return buildDataQualityRevenueGraph();
 }
 
-/** Agent 配置向导：合并 API 列表与内置「收入回款数据质检」模板 */
+/** Agent 配置向导：合并 API 列表与内置「收入回款对账治理」模板 */
 export function mergeAgentWorkflowTemplates(remote: WorkflowListItem[]): WorkflowListItem[] {
   const preset = getDataQualityWorkflowListItem();
   const map = new Map<string, WorkflowListItem>();

@@ -108,7 +108,7 @@ export function BeforeAfterCompare({ batchTotal = 10, pendingCount = 6 }: Before
           <div className="border-b border-blue-100 bg-blue-50 px-5 py-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-blue-600" />
-              <h4 className="font-bold text-slate-900">After · 数据质检 Agent 工作台</h4>
+              <h4 className="font-bold text-slate-900">After · 对账治理 Agent 工作台</h4>
             </div>
             <p className="mt-1 text-xs text-slate-500">同一笔差异的处理路径</p>
           </div>

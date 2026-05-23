@@ -1,6 +1,6 @@
 # TAI Agent Hub POC (V3)
 
-Agent 中台 + 数据质检 Agent POC（演示脱敏版）。
+Agent 中台 + 对账治理 Agent POC（演示脱敏版）。
 
 POC 内置真实的 Agent Runtime（不是查表 Mock）：
 1. 接收差异（Connector Hub → DiffRecord）
@@ -23,7 +23,7 @@ tai-agent-hub/
 │   ├── connectors/                 # Connector Hub
 │   │   └── fixtures/*.json         # 6 个 mock 数据集
 │   ├── model/                      # Model Gateway（脱敏 + Gemini + 兜底）
-│   └── agents/                     # 数据质检 Agent 定义
+│   └── agents/                     # 对账治理 Agent 定义
 └── src/                            # React 前端
     ├── App.tsx                     # 侧边栏 + 9 个 Tab
     └── components/views/           # Dashboard/Agents/Models/Skills/Tools/Data/

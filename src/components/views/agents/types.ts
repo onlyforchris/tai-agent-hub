@@ -127,7 +127,7 @@ export interface WizardFormState {
 }
 
 export const DEFAULT_DATA_QUALITY_FORM: WizardFormState = {
-  name: "数据质检智能归因 Agent",
+  name: "对账治理智能归因 Agent",
   identity:
     "负责对帆软已发现的收入差异执行类型识别、Skill 调度、确定性规则计算和证据链生成，模型仅在最后输出脱敏报告。",
   systemPrompt: `你是财务对账差异归因平台的报告助手。

@@ -5,11 +5,11 @@ import {
   getPipelineEdgePatch,
 } from "@/src/lib/workflowLayout";
 
-/** 收入回款数据质检 — 9 节点纵向主流程 */
+/** 收入回款对账治理 — 9 节点纵向主流程 */
 export function buildDataQualityRevenueGraph(): WorkflowGraph {
   const nodeDefs = [
     { id: "intake", kind: "INPUT" as const, title: "差异发现", desc: "帆软差异清单、月结批次、API 推送", meta: "diff_batch" },
-    { id: "profile", kind: "PROFILE" as const, title: "数据质检", desc: "字段完整性、类型、空值、主键重复", meta: "quality_gate" },
+    { id: "profile", kind: "PROFILE" as const, title: "对账治理", desc: "字段完整性、类型、空值、主键重复", meta: "quality_gate" },
     { id: "standard", kind: "TRANSFORM" as const, title: "标准化映射", desc: "MDM、组织、客户、结算单口径统一", meta: "mapping" },
     { id: "evidence", kind: "JOIN" as const, title: "证据汇聚", desc: "DMS / SAP / 接口日志证据合并", meta: "evidence_pack" },
     { id: "rules", kind: "RULE" as const, title: "规则归因", desc: "金额翻倍、状态异常、回传失败", meta: "rule_engine" },
@@ -66,7 +66,7 @@ export function buildRevenueQualitySeedRecord(): WorkflowTemplateRecord {
   return {
     meta: {
       id: "revenue_quality",
-      name: "收入回款数据质检",
+      name: "收入回款对账治理",
       description: "覆盖差异接入、规则归因、AI 报告、人工复核、处置回写和案例沉淀。",
       category: "data_quality",
       status: "published",
@@ -81,7 +81,7 @@ export function buildRevenueQualitySeedRecord(): WorkflowTemplateRecord {
         id: versionId,
         templateId: "revenue_quality",
         version: "v1.0.0",
-        changelog: "首期数据质检 DAG 模板",
+        changelog: "首期对账治理 DAG 模板",
         graph,
         createdAt: now,
         createdBy: "系统预设",

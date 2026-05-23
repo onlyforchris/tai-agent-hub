@@ -1,7 +1,7 @@
 {
   "meta": {
     "id": "revenue_quality",
-    "name": "收入回款数据质检",
+    "name": "收入回款对账治理",
     "description": "覆盖差异接入、规则归因、AI 报告、人工复核、处置回写和案例沉淀。",
     "category": "data_quality",
     "status": "published",
@@ -16,7 +16,7 @@
       "id": "ver-1-0-0",
       "templateId": "revenue_quality",
       "version": "v1.0.0",
-      "changelog": "首期数据质检 DAG 模板",
+      "changelog": "首期对账治理 DAG 模板",
       "graph": {
         "nodes": [
           {
@@ -40,7 +40,7 @@
               "y": 228
             },
             "data": {
-              "title": "数据质检",
+              "title": "对账治理",
               "desc": "字段完整性、类型、空值、主键重复",
               "meta": "quality_gate"
             }

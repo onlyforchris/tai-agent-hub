@@ -126,6 +126,7 @@ export async function runAgent({ agent, diff, triggeredBy }: RuntimeInput): Prom
     confidence,
     rootCause,
     firstAbnormalNode,
+    evidence: ctx.evidence,
     reviewRoutes,
     reportText: modelOut.reportText,
     durationMs: finishedAt - startedAt,

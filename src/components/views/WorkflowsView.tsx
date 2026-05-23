@@ -282,7 +282,7 @@ export function WorkflowsView() {
                     <p className="mt-0.5 line-clamp-1 text-[11px] text-slate-500">{item.description}</p>
                   </td>
                   <td className="px-4 py-3 text-slate-600">
-                    {item.category === "data_quality" ? "数据质检" : "通用"}
+                    {item.category === "data_quality" ? "对账治理" : "通用"}
                   </td>
                   <td className="px-4 py-3">
                     <span

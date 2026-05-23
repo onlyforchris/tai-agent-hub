@@ -14,7 +14,7 @@ export default defineConfig(() => {
     server: {
       port: 9001,
       proxy: {
-        '/api': 'http://localhost:9002',
+        '/api': 'http://127.0.0.1:9002',
       },
     },
   };

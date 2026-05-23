@@ -1,4 +1,4 @@
-// Agent 中台 + 数据质检 Agent POC
+// Agent 中台 + 对账治理 Agent POC
 // server.ts 仅承担路由层：编排请求 → Agent Runtime → 返回 Run/Trace
 // 真实业务逻辑全部下沉到 agent/* 子模块。
 
@@ -321,13 +321,7 @@ async function startServer() {
         ownerSystem: diff.ownerSystem,
         modelSummary: run.reportText,
         report: run.reportText,
-        evidenceChain: run.steps
-          .filter((s) => s.stepType === "tool_call" || s.stepType === "rule")
-          .flatMap((s) => {
-            const out = s.output as Record<string, unknown> | undefined;
-            return Array.isArray(out) ? out : [out];
-          })
-          .filter(Boolean) as unknown as Array<unknown>,
+        evidenceChain: run.evidence ?? [],
         evidence: deriveEvidenceLines(run.id),
         auditNotes: deriveAuditNotes(run),
       });

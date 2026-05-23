@@ -1,6 +1,6 @@
-export type AppViewMode = "business" | "admin";
+export type AppViewMode = "finance" | "sap" | "dms" | "admin";
 
-export type WorkbenchUrlTab = "todo" | "confirm" | "list" | "progress" | "cases" | "compare";
+export type WorkbenchUrlTab = "overview" | "todo" | "confirm" | "list" | "progress" | "cases" | "compare" | "governance";
 
 export interface AppUrlParams {
   view: AppViewMode | null;
@@ -8,7 +8,7 @@ export interface AppUrlParams {
   billNo: string | null;
 }
 
-const VALID_TABS = new Set<string>(["todo", "confirm", "list", "progress", "cases", "compare"]);
+const VALID_TABS = new Set<string>(["overview", "todo", "confirm", "list", "progress", "cases", "compare", "governance"]);
 
 export function readAppUrlParams(): AppUrlParams {
   const params = new URLSearchParams(window.location.search);
@@ -17,7 +17,12 @@ export function readAppUrlParams(): AppUrlParams {
   const billNoRaw = params.get("billNo");
 
   return {
-    view: viewRaw === "admin" ? "admin" : viewRaw === "business" ? "business" : null,
+    view:
+      viewRaw === "admin" || viewRaw === "finance" || viewRaw === "sap" || viewRaw === "dms"
+        ? viewRaw
+        : viewRaw === "business"
+          ? "finance"
+          : null,
     workbenchTab: tabRaw && VALID_TABS.has(tabRaw) ? (tabRaw as WorkbenchUrlTab) : null,
     billNo: billNoRaw?.trim() || null,
   };

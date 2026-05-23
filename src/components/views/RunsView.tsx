@@ -160,7 +160,7 @@ export function RunsView() {
           </div>
           {runs.length === 0 ? (
             <div className="flex min-h-[160px] items-center justify-center text-sm text-slate-400">
-              暂无 Run，请到「数据质检 Agent 工作台」触发归因，或直接调用 POST /api/analyze。
+              暂无 Run，请到「对账治理 Agent 工作台」触发归因，或直接调用 POST /api/analyze。
             </div>
           ) : (
             <div className="divide-y divide-slate-100">

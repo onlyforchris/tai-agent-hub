@@ -44,7 +44,7 @@ const EXECUTION_MODES: Array<{
     title: "工作流编排模式",
     status: "一期已启用",
     icon: Waypoints,
-    desc: "按可视化流程、规则节点和复核路由顺序执行，适合数据质检的稳定闭环。",
+    desc: "按可视化流程、规则节点和复核路由顺序执行，适合对账治理的稳定闭环。",
     logic: "用于收入回款、合同资产、库存等需要可审计、可回放、可持续沉淀的质检场景。",
     available: true,
   },
@@ -192,7 +192,7 @@ export function Step5Runtime({ form, patch, disabled, gateway }: Props) {
                 Workflow 模板配置
               </h4>
               <p className="mt-1 text-sm text-slate-500">
-                数据质检 Agent Runtime 默认绑定「收入回款数据质检」模板（9 节点纵向 DAG）；画布为只读预览，编辑与发布请前往 Workflow 管理。
+                对账治理 Agent Runtime 默认绑定「收入回款对账治理」模板（9 节点纵向 DAG）；画布为只读预览，编辑与发布请前往 Workflow 管理。
               </p>
             </div>
             <button
@@ -287,7 +287,7 @@ export function Step5Runtime({ form, patch, disabled, gateway }: Props) {
               <ArchBox
                 tone="blue"
                 icon={Bot}
-                title={form.name || "数据质检 Agent"}
+                title={form.name || "对账治理 Agent"}
                 subtitle={`Agent Runtime / Workflow: ${findWorkflowListItem(templates, selectedTemplate).name}`}
                 accent="ORCHESTRATOR"
                 large

@@ -106,7 +106,7 @@ export function CreateWorkflowModal({ open, submitting = false, onClose, onSubmi
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     disabled={submitting}
-                    placeholder="例如：收入回款数据质检"
+                    placeholder="例如：收入回款对账治理"
                     className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-50"
                   />
                 </label>
@@ -119,7 +119,7 @@ export function CreateWorkflowModal({ open, submitting = false, onClose, onSubmi
                     disabled={submitting}
                     className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-50"
                   >
-                    <option value="data_quality">数据质检</option>
+                    <option value="data_quality">对账治理</option>
                     <option value="general">通用流程</option>
                   </select>
                 </label>

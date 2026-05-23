@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   Bell,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Clock,
   Database,
@@ -79,6 +81,8 @@ const ingestionModeLabels: Record<string, string> = {
   API_ETL: "API + ETL",
 };
 
+const logPageSize = 6;
+
 function StatusBadge({ value }: { value: string }) {
   return (
     <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold", statusStyles[value])}>
@@ -108,6 +112,7 @@ export function InterfaceMonitorView() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [businessKey, setBusinessKey] = useState("");
   const [selectedLog, setSelectedLog] = useState<InterfaceLogRecord | null>(null);
+  const [logPage, setLogPage] = useState(1);
 
   const fetchJson = async <T,>(url: string): Promise<T> => {
     const res = await fetch(url);
@@ -136,6 +141,7 @@ export function InterfaceMonitorView() {
       setSystems(systemData);
       setDefinitions(definitionData);
       setLogs(logData);
+      setLogPage(1);
       setAlerts(alertData);
     } finally {
       setLoading(false);
@@ -156,10 +162,18 @@ export function InterfaceMonitorView() {
   }, [summary]);
 
   const statusOptions: InterfaceLogStatus[] = ["SUCCESS", "FAIL", "TIMEOUT", "RETRYING"];
+  const logPageCount = Math.max(1, Math.ceil(logs.length / logPageSize));
+  const safeLogPage = Math.min(logPage, logPageCount);
+  const visibleLogs = useMemo(() => {
+    const start = (safeLogPage - 1) * logPageSize;
+    return logs.slice(start, start + logPageSize);
+  }, [logs, safeLogPage]);
+  const logStart = logs.length === 0 ? 0 : (safeLogPage - 1) * logPageSize + 1;
+  const logEnd = Math.min(safeLogPage * logPageSize, logs.length);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full overflow-auto bg-slate-50/60 p-6">
-      <div className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="scrollbar-default h-full min-w-0 overflow-auto bg-slate-50/60 p-4 xl:p-6">
+      <div className="min-w-0 space-y-5 xl:space-y-6">
         <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -180,7 +194,7 @@ export function InterfaceMonitorView() {
             </button>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-6">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-6">
             <div className="rounded border border-slate-200 bg-slate-50 p-3">
               <div className="text-xs font-bold text-slate-500">接口数</div>
               <div className="mt-1 text-2xl font-bold text-slate-900">{summary?.totalInterfaces ?? 0}</div>
@@ -282,22 +296,22 @@ export function InterfaceMonitorView() {
           </div>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_1.35fr]">
-          <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <section className="grid min-w-0 gap-6 min-[1800px]:grid-cols-[minmax(320px,0.75fr)_minmax(0,1.75fr)]">
+          <div className="min-w-0 rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="flex items-center gap-2 font-bold text-slate-900">
                 <Database className="h-4 w-4 text-blue-600" />
                 已接入业务系统
               </h3>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="grid gap-4 p-5 lg:grid-cols-2 min-[1800px]:block min-[1800px]:divide-y min-[1800px]:divide-slate-100 min-[1800px]:p-0">
               {systems.map((system) => {
                 const health = systemHealthMap.get(system.code);
                 return (
-                  <div key={system.code} className="p-5">
+                  <div key={system.code} className="rounded-lg border border-slate-100 bg-white p-4 min-[1800px]:rounded-none min-[1800px]:border-0 min-[1800px]:p-5">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <h4 className="font-bold text-slate-900">{system.name}</h4>
                           <StatusBadge value={health?.status ?? system.status} />
                         </div>
@@ -308,7 +322,7 @@ export function InterfaceMonitorView() {
                         <div className="mt-1">{metricText(health?.successRate ?? 100, "%")} 成功率</div>
                       </div>
                     </div>
-                    <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                    <div className="mt-4 grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
                       <div className="rounded border border-slate-100 bg-slate-50 p-2">
                         <div className="text-slate-400">责任部门</div>
                         <div className="mt-1 font-bold text-slate-700">{system.ownerDept}</div>
@@ -328,15 +342,27 @@ export function InterfaceMonitorView() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="min-w-0 rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="flex items-center gap-2 font-bold text-slate-900">
                 <GitBranch className="h-4 w-4 text-blue-600" />
                 接口健康明细
               </h3>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] text-left text-sm">
+            <div className="scrollbar-default max-h-[520px] min-w-0 max-w-full overflow-x-auto overflow-y-auto overscroll-contain">
+              <table className="w-full min-w-[1250px] table-fixed text-left text-sm">
+                <colgroup>
+                  <col className="w-[260px]" />
+                  <col className="w-[150px]" />
+                  <col className="w-[100px]" />
+                  <col className="w-[120px]" />
+                  <col className="w-[110px]" />
+                  <col className="w-[160px]" />
+                  <col className="w-[90px]" />
+                  <col className="w-[80px]" />
+                  <col className="w-[80px]" />
+                  <col className="w-[100px]" />
+                </colgroup>
                 <thead className="border-b border-slate-100 bg-slate-50 text-xs font-bold text-slate-500">
                   <tr>
                     <th className="px-5 py-3">接口</th>
@@ -433,8 +459,22 @@ export function InterfaceMonitorView() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] text-left text-sm">
+          <div className="scrollbar-default max-h-[520px] min-w-0 max-w-full overflow-x-auto overflow-y-auto overscroll-contain">
+            <table className="w-full min-w-[1260px] table-fixed text-left text-sm [&_td:last-child]:sticky [&_td:last-child]:right-0 [&_td:last-child]:z-10 [&_td:last-child]:border-l [&_td:last-child]:border-slate-100 [&_td:last-child]:bg-white [&_td:last-child]:text-center [&_td:last-child]:shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.35)] [&_th:last-child]:sticky [&_th:last-child]:right-0 [&_th:last-child]:z-10 [&_th:last-child]:border-l [&_th:last-child]:border-slate-100 [&_th:last-child]:bg-slate-50 [&_th:last-child]:text-center [&_th:last-child]:shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.35)]">
+              <colgroup>
+                <col className="w-[115px]" />
+                <col className="w-[170px]" />
+                <col className="w-[135px]" />
+                <col className="w-[100px]" />
+                <col className="w-[90px]" />
+                <col className="w-[90px]" />
+                <col className="w-[80px]" />
+                <col className="w-[90px]" />
+                <col className="w-[60px]" />
+                <col className="w-[135px]" />
+                <col className="w-[105px]" />
+                <col className="w-[90px]" />
+              </colgroup>
               <thead className="border-b border-slate-100 bg-slate-50 text-xs font-bold text-slate-500">
                 <tr>
                   <th className="px-5 py-3">时间</th>
@@ -452,14 +492,16 @@ export function InterfaceMonitorView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {logs.map((log) => (
+                {visibleLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50">
                     <td className="px-5 py-4 font-mono text-xs text-slate-500">{formatTime(log.requestAt)}</td>
                     <td className="px-5 py-4">
-                      <div className="font-bold text-slate-900">{log.interfaceName}</div>
-                      <div className="mt-1 font-mono text-xs text-slate-400">{log.id}</div>
+                      <div className="line-clamp-2 font-bold text-slate-900">{log.interfaceName}</div>
+                      <div className="mt-1 truncate font-mono text-xs text-slate-400">{log.id}</div>
                     </td>
-                    <td className="px-5 py-4 font-mono text-xs font-bold text-slate-700">{log.businessKey}</td>
+                    <td className="px-5 py-4 font-mono text-xs font-bold text-slate-700">
+                      <div className="truncate">{log.businessKey}</div>
+                    </td>
                     <td className="px-5 py-4 font-mono text-xs text-slate-600">{log.sourceSystem} → {log.targetSystem}</td>
                     <td className="px-5 py-4 text-slate-600">{ingestionModeLabels[log.ingestionMode]}</td>
                     <td className="px-5 py-4 font-mono text-xs text-slate-500">{log.originalBizDate}</td>
@@ -468,8 +510,8 @@ export function InterfaceMonitorView() {
                     <td className="px-5 py-4 text-slate-600">{log.retryCount}</td>
                     <td className="px-5 py-4">
                       {log.errorCode ? (
-                        <div className="max-w-[220px]">
-                          <div className="font-mono text-xs font-bold text-rose-700">{log.errorCode}</div>
+                        <div className="min-w-0">
+                          <div className="truncate font-mono text-xs font-bold text-rose-700">{log.errorCode}</div>
                           <div className="mt-1 truncate text-xs text-slate-500">{log.errorMessage}</div>
                         </div>
                       ) : (
@@ -477,12 +519,12 @@ export function InterfaceMonitorView() {
                       )}
                     </td>
                     <td className="px-5 py-4">
-                      <div className="max-w-[260px] truncate font-mono text-xs text-slate-500">{log.payloadDigest}</div>
+                      <div className="truncate font-mono text-xs text-slate-500">{log.payloadDigest}</div>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-4">
                       <button
                         onClick={() => setSelectedLog(log)}
-                        className="inline-flex items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                        className="inline-flex h-8 w-16 items-center justify-center gap-1 rounded border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-50"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         详情
@@ -492,6 +534,35 @@ export function InterfaceMonitorView() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              共 <span className="font-bold text-slate-700">{logs.length}</span> 条日志，
+              当前显示 <span className="font-bold text-slate-700">{logStart}-{logEnd}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLogPage((page) => Math.max(1, page - 1))}
+                disabled={safeLogPage <= 1}
+                className="inline-flex h-8 items-center gap-1 rounded border border-slate-200 bg-white px-2.5 font-bold text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                上一页
+              </button>
+              <span className="min-w-[4rem] text-center font-mono font-bold text-slate-700">
+                {safeLogPage}/{logPageCount}
+              </span>
+              <button
+                type="button"
+                onClick={() => setLogPage((page) => Math.min(logPageCount, page + 1))}
+                disabled={safeLogPage >= logPageCount}
+                className="inline-flex h-8 items-center gap-1 rounded border border-slate-200 bg-white px-2.5 font-bold text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                下一页
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -519,7 +590,7 @@ export function InterfaceMonitorView() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto p-6">
+            <div className="scrollbar-default flex-1 overflow-auto p-6">
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>

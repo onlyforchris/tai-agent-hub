@@ -18,7 +18,7 @@ export function DashboardView() {
   ];
 
   const agentData = [
-    { name: "数据质检分析", success: 85, error: 5 },
+    { name: "对账治理分析", success: 85, error: 5 },
     { name: "财报解读", success: 42, error: 2 },
     { name: "智能客服", success: 120, error: 10 },
     { name: "审批路由", success: 65, error: 1 },

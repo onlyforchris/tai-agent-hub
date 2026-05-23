@@ -3,7 +3,7 @@ import { Check, ChevronUp, Settings2, User } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { NotificationBell } from "./NotificationBell";
 
-export type AppViewMode = "business" | "admin";
+export type AppViewMode = "finance" | "sap" | "dms" | "admin";
 
 export interface AppRole {
   id: AppViewMode;
@@ -14,7 +14,9 @@ export interface AppRole {
 }
 
 export const APP_ROLES: AppRole[] = [
-  { id: "business", name: "张会计", title: "财务对账人员", avatar: "财", icon: User },
+  { id: "finance", name: "张会计", title: "财务对账人员", avatar: "财", icon: User },
+  { id: "sap", name: "SAP 负责人", title: "SAP 处理组", avatar: "SAP", icon: User },
+  { id: "dms", name: "DMS 负责人", title: "DMS 处理组", avatar: "DMS", icon: User },
   { id: "admin", name: "管理员", title: "平台运营 / IT", avatar: "FT", icon: Settings2 },
 ];
 

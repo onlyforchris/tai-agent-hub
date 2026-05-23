@@ -1,11 +1,11 @@
-// 场景 Agent：数据质检 Agent
+// 场景 Agent：对账治理 Agent
 // 对应方案 V3.0 第 13 章
 
 import type { AgentDefinition } from "../runtime/types.js";
 
 export const dataQualityAgent: AgentDefinition = {
   code: "data_quality_agent",
-  displayName: "数据质检 Agent",
+  displayName: "对账治理 Agent",
   domain: "财务对账差异归因",
   executionMode: "workflow",
   workflowTemplateId: "revenue_quality",
